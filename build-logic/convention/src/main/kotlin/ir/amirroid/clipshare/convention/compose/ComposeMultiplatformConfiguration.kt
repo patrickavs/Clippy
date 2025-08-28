@@ -28,6 +28,7 @@ private fun Project.configureCommonMain(sourceSets: NamedDomainObjectContainer<K
         implementation(dependencies.runtime)
         implementation(dependencies.foundation)
         implementation(dependencies.ui)
+        implementation(dependencies.material3)
         implementation(dependencies.components.resources)
 
         implementation(libs.findLibrary("androidx-lifecycle-viewmodel").get())

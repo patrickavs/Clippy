@@ -34,4 +34,8 @@ plugins {
 
 include(":composeApp")
 
+// Shared
+include(":shared:common:app")
+include(":shared:connectivity")
+
 includeBuild("build-logic")

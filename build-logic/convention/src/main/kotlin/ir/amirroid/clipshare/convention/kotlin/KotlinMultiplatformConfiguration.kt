@@ -37,6 +37,8 @@ private fun Project.configureCommonMain(sourceSets: NamedDomainObjectContainer<K
         implementation(libs.findLibrary("kotlinx-serialization").get())
         implementation(libs.findLibrary("kermit").get())
         implementation(libs.findLibrary("kotlinx-collections").get())
+
+        implementIfNotSelf(":shared:common:app")
     }
 }
 

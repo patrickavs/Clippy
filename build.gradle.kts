@@ -11,4 +11,4 @@ plugins {
     alias(libs.plugins.local.git.versioning)
 }
 
-//version = gitVersion.version.get()
+version = gitVersion.version.get()
