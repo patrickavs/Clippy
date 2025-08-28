@@ -6,14 +6,27 @@ import ir.amirroid.clipshare.convention.implementIfNotSelf
 import ir.amirroid.clipshare.convention.libs
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
+import org.jetbrains.kotlin.gradle.ExperimentalKotlinGradlePluginApi
 import org.jetbrains.kotlin.gradle.ExperimentalWasmDsl
 import org.jetbrains.kotlin.gradle.dsl.KotlinMultiplatformExtension
 import org.jetbrains.kotlin.gradle.plugin.KotlinSourceSet
 
-@OptIn(ExperimentalWasmDsl::class)
+@OptIn(ExperimentalWasmDsl::class, ExperimentalKotlinGradlePluginApi::class)
 internal fun Project.configureKotlinMultiplatformPlugins(extensions: KotlinMultiplatformExtension) {
     extensions.apply {
-        applyDefaultHierarchyTemplate()
+        applyDefaultHierarchyTemplate {
+            common {
+                group("mobile") {
+                    withIos()
+                    withAndroidTarget()
+                }
+                group("java") {
+                    withJvm()
+                    withAndroidTarget()
+                }
+            }
+        }
+
         androidTarget()
         configureIosTargets()
         jvm("desktop")

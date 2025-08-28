@@ -9,6 +9,15 @@ plugins {
     alias(libs.plugins.composeHotReload)
 }
 
+kotlin {
+    sourceSets {
+        commonMain.dependencies {
+            implementation(projects.core.di)
+            implementation(projects.shared.connectivity)
+        }
+    }
+}
+
 compose.desktop {
     application {
         mainClass = "ir.amirroid.clipshare.MainKt"

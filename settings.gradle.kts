@@ -10,6 +10,7 @@ pluginManagement {
                 includeGroupAndSubgroups("com.google")
             }
         }
+        maven("https://en-mirror.ir")
         mavenCentral()
         gradlePluginPortal()
     }
@@ -24,18 +25,19 @@ dependencyResolutionManagement {
                 includeGroupAndSubgroups("com.google")
             }
         }
+        maven("https://en-mirror.ir")
         mavenCentral()
     }
 }
 
-plugins {
-    id("org.gradle.toolchains.foojay-resolver-convention") version "1.0.0"
-}
 
 include(":composeApp")
 
 // Shared
 include(":shared:common:app")
 include(":shared:connectivity")
+
+// Core
+include(":core:di")
 
 includeBuild("build-logic")
