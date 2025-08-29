@@ -36,6 +36,7 @@ include(":composeApp")
 // Shared
 include(":shared:common:app")
 include(":shared:connectivity")
+include(":shared:clipboard")
 
 // Core
 include(":core:di")

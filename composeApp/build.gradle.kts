@@ -14,6 +14,9 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core.di)
             implementation(projects.shared.connectivity)
+            implementation(projects.shared.clipboard)
+
+            implementation(libs.coil.compose)
         }
     }
 }

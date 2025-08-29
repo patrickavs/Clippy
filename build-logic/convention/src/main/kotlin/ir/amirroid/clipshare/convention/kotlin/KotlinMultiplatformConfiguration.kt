@@ -20,15 +20,12 @@ internal fun Project.configureKotlinMultiplatformPlugins(extensions: KotlinMulti
                     withIos()
                     withAndroidTarget()
                 }
-                group("java") {
-                    withJvm()
-                    withAndroidTarget()
-                }
             }
         }
 
         androidTarget()
         configureIosTargets()
+
         jvm("desktop")
 
         configureCommonMain(sourceSets)

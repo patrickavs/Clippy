@@ -7,9 +7,11 @@ androidx-activity = "1.10.1"
 androidx-appcompat = "1.7.1"
 androidx-core = "1.17.0"
 androidx-lifecycle = "2.9.2"
+coilCompose = "3.3.0"
 kotlinx-collections = "0.4.0"
 kotlinx-serialization = "1.9.0"
 composeHotReload = "1.0.0-beta04"
+kotlinxIoCore = "0.8.0"
 navigationCompose = "2.9.0-beta03"
 composeMultiplatform = "1.8.2"
 kermit = "2.0.8"
@@ -20,6 +22,7 @@ kotlinx-coroutines = "1.10.2"
 jgit = "7.3.0.202506031305-r"
 
 [libraries]
+coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
 junit = { module = "junit:junit", version.ref = "junit" }
@@ -30,6 +33,7 @@ androidx-lifecycle-viewmodel = { module = "org.jetbrains.androidx.lifecycle:life
 androidx-lifecycle-runtimeCompose = { module = "org.jetbrains.androidx.lifecycle:lifecycle-runtime-compose", version.ref = "androidx-lifecycle" }
 kotlinx-coroutinesSwing = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-swing", version.ref = "kotlinx-coroutines" }
 jgit = { module = "org.eclipse.jgit:org.eclipse.jgit", version.ref = "jgit" }
+kotlinx-io-core = { module = "org.jetbrains.kotlinx:kotlinx-io-core", version.ref = "kotlinxIoCore" }
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-collections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections" }

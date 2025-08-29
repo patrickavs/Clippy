@@ -8,8 +8,7 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
-            implementation(projects.shared.connectivity)
-            implementation(projects.shared.clipboard)
+            implementation(libs.kotlinx.io.core)
         }
     }
 }
