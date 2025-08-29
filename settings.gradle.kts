@@ -43,6 +43,9 @@ include(":core:di")
 include(":core:navigation")
 include(":core:database")
 include(":core:process")
+include(":core:data")
+include(":core:domain")
+include(":core:ui-models")
 include(":core:design-system")
 
 // Features
