@@ -1,55 +1,29 @@
 package ir.amirroid.clipshare
 
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.text.selection.SelectionContainer
-import androidx.compose.material3.ListItem
-import androidx.compose.material3.Text
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.padding
+import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.DisposableEffect
-import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.runtime.remember
-import androidx.compose.runtime.rememberCoroutineScope
-import coil3.compose.AsyncImage
-import ir.amirroid.clipshare.clipboard.manager.ClipboardManager
-import ir.amirroid.clipshare.clipboard.models.ClipboardContent
-import kotlinx.coroutines.Dispatchers
-import kotlinx.coroutines.IO
-import kotlinx.coroutines.launch
-import org.koin.compose.koinInject
+import androidx.compose.ui.Alignment
+import androidx.compose.ui.Modifier
+import androidx.compose.ui.unit.dp
+import ir.amirroid.clipshare.design_system.components.AppCard
+import ir.amirroid.clipshare.design_system.components.AppCircularProgressbar
+import ir.amirroid.clipshare.design_system.components.AppSurface
+import ir.amirroid.clipshare.design_system.theme.ClipShareTheme
+import ir.amirroid.clipshare.navigation.MainNavigation
 
+@OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun App() {
-    val entries = remember {
-        mutableStateListOf<ClipboardContent>()
-    }
-    val scope = rememberCoroutineScope()
-    val manager: ClipboardManager = koinInject()
-    DisposableEffect(Unit) {
-        scope.launch(Dispatchers.IO) {
-            manager.addOnChangedListener {
-                entries.add(it)
-            }
-        }
-        onDispose { }
-    }
-
-    LazyColumn {
-        item {
-            SelectionContainer {
-                Text("Test")
-            }
-        }
-        items(entries) {
-            if (it is ClipboardContent.Image) {
-                AsyncImage(
-                    model = it.bytes,
-                    contentDescription = null
-                )
-            } else {
-                ListItem(headlineContent = {
-                    Text(it.toString())
-                })
+    ClipShareTheme {
+        AppSurface {
+            MainNavigation()
+            Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                AppCard {
+                    AppCircularProgressbar(modifier = Modifier.padding(24.dp))
+                }
             }
         }
     }

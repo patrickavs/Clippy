@@ -2,6 +2,8 @@ package ir.amirroid.clipshare.di
 
 import ir.amirroid.clipshare.clipboard.di.clipboardModule
 import ir.amirroid.clipshare.connectivity.di.connectivityModule
+import ir.amirroid.clipshare.database.di.databaseModule
+import ir.amirroid.clipshare.process.di.processorModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
@@ -9,7 +11,7 @@ object DependencyInjection {
     fun configure(appDeclaration: KoinAppDeclaration? = null) = startKoin {
         appDeclaration?.invoke(this)
         modules(
-            otherModules, connectivityModule, clipboardModule
+            otherModules, connectivityModule, clipboardModule, databaseModule, processorModule
         )
     }
 }

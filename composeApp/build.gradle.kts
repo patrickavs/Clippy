@@ -12,11 +12,14 @@ plugins {
 kotlin {
     sourceSets {
         commonMain.dependencies {
+            // Core
             implementation(projects.core.di)
+            implementation(projects.core.navigation)
+            implementation(projects.core.process)
+
+            // Shared
             implementation(projects.shared.connectivity)
             implementation(projects.shared.clipboard)
-
-            implementation(libs.coil.compose)
         }
     }
 }

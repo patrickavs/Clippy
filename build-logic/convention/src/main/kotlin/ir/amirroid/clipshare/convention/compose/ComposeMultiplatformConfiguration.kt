@@ -4,6 +4,7 @@ import ir.amirroid.clipshare.convention.androidMain
 import ir.amirroid.clipshare.convention.commonMain
 import ir.amirroid.clipshare.convention.composeDependencies
 import ir.amirroid.clipshare.convention.desktopMain
+import ir.amirroid.clipshare.convention.implementIfNotSelf
 import ir.amirroid.clipshare.convention.libs
 import org.gradle.api.NamedDomainObjectContainer
 import org.gradle.api.Project
@@ -25,14 +26,16 @@ private fun Project.configureCommonMain(sourceSets: NamedDomainObjectContainer<K
     val commonMain = sourceSets.commonMain
     val dependencies = composeDependencies
     commonMain.dependencies {
-        implementation(dependencies.material3)
         implementation(dependencies.runtime)
         implementation(dependencies.foundation)
         implementation(dependencies.ui)
         implementation(dependencies.components.resources)
 
+        implementation(libs.findLibrary("material3").get())
         implementation(libs.findLibrary("androidx-lifecycle-viewmodel").get())
         implementation(libs.findLibrary("androidx-lifecycle-runtimeCompose").get())
+
+        implementIfNotSelf(":core:design-system")
     }
 }
 

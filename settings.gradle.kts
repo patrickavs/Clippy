@@ -40,5 +40,12 @@ include(":shared:clipboard")
 
 // Core
 include(":core:di")
+include(":core:navigation")
+include(":core:database")
+include(":core:process")
+include(":core:design-system")
+
+// Features
+include(":features:history")
 
 includeBuild("build-logic")

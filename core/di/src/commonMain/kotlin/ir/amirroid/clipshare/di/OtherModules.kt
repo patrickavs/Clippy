@@ -1,5 +1,8 @@
 package ir.amirroid.clipshare.di
 
+import kotlinx.coroutines.CoroutineDispatcher
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.IO
 import kotlinx.serialization.json.Json
 import org.koin.dsl.module
 
@@ -11,4 +14,6 @@ val otherModules = module {
             encodeDefaults = true
         }
     }
+
+    factory<CoroutineDispatcher> { Dispatchers.IO }
 }

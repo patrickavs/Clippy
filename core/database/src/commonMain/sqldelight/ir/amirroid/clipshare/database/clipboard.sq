@@ -1,0 +1,22 @@
+CREATE TABLE ClipboardEntries (
+    id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+    type TEXT NOT NULL,
+    data TEXT NOT NULL,
+    createdAt INTEGER NOT NULL DEFAULT (strftime('%s','now'))
+);
+
+getAllEntries:
+SELECT *
+FROM ClipboardEntries
+ORDER BY createdAt DESC;
+
+insertEntry:
+INSERT INTO ClipboardEntries(type, data)
+VALUES (?, ?);
+
+deleteById:
+DELETE FROM ClipboardEntries
+WHERE id = ?;
+
+deleteAll:
+DELETE FROM ClipboardEntries;

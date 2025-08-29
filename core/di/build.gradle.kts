@@ -10,6 +10,8 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.shared.connectivity)
             implementation(projects.shared.clipboard)
+            implementation(projects.core.database)
+            implementation(projects.core.process)
         }
     }
 }
