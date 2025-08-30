@@ -14,12 +14,17 @@ import ir.amirroid.clipshare.design_system.components.AppText
 import ir.amirroid.clipshare.ui_models.clipboard.ClipboardContentUiModel
 
 @Composable
-internal fun ClipboardContentView(content: ClipboardContentUiModel, onCopy: () -> Unit) {
+internal fun ClipboardContentView(
+    content: ClipboardContentUiModel,
+    onCopy: () -> Unit,
+    onDelete: () -> Unit
+) {
     when (content) {
         is ClipboardContentUiModel.Text -> {
             ClipboardContentSection(
-                content,
-                onCopy
+                clipboardContentUiModel = content,
+                onCopy = onCopy,
+                onDelete = onDelete
             ) {
                 AppText(content.value)
             }
@@ -27,8 +32,9 @@ internal fun ClipboardContentView(content: ClipboardContentUiModel, onCopy: () -
 
         is ClipboardContentUiModel.Image -> {
             ClipboardContentSection(
-                content,
-                onCopy
+                clipboardContentUiModel = content,
+                onCopy = onCopy,
+                onDelete = onDelete
             ) {
                 AsyncImage(
                     model = content.path,
@@ -40,13 +46,14 @@ internal fun ClipboardContentView(content: ClipboardContentUiModel, onCopy: () -
         }
 
         is ClipboardContentUiModel.Files -> {
-            FilesContentView(content, onCopy)
+            FilesContentView(content, onCopy, onDelete)
         }
 
         is ClipboardContentUiModel.RichText -> {
             ClipboardContentSection(
-                content,
-                onCopy
+                clipboardContentUiModel = content,
+                onCopy = onCopy,
+                onDelete = onDelete
             ) {
                 AppText(content.content)
             }
@@ -54,8 +61,9 @@ internal fun ClipboardContentView(content: ClipboardContentUiModel, onCopy: () -
 
         is ClipboardContentUiModel.Html -> {
             ClipboardContentSection(
-                content,
-                onCopy
+                clipboardContentUiModel = content,
+                onCopy = onCopy,
+                onDelete = onDelete
             ) {
                 HtmlRichText(html = content.content)
             }

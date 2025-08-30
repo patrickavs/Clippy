@@ -7,7 +7,12 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.Icon
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.adaptive.currentWindowAdaptiveInfo
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
@@ -15,6 +20,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import androidx.window.core.layout.WindowWidthSizeClass
+import ir.amirroid.clipshare.design_system.components.AppIconButton
 import ir.amirroid.clipshare.design_system.components.AppText
 import ir.amirroid.clipshare.design_system.components.AppTopAppBar
 import ir.amirroid.clipshare.history.components.ClipboardContentView
@@ -32,11 +38,20 @@ fun ClipboardHistoryScreen(
         WindowWidthSizeClass.MEDIUM -> 2
         else -> 1
     }
+    val showDeleteDialog = viewModel.showDeleteDialog
 
     Column {
         AppTopAppBar(
             title = {
                 AppText("History")
+            },
+            actions = {
+                AppIconButton(onClick = { viewModel.showDeleteDialog = true }) {
+                    Icon(
+                        Icons.Rounded.Delete,
+                        contentDescription = null
+                    )
+                }
             }
         )
         LazyVerticalStaggeredGrid(
@@ -49,8 +64,33 @@ fun ClipboardHistoryScreen(
             items(history, key = { it.id }) { content ->
                 ClipboardContentView(
                     content = content,
-                    onCopy = { viewModel.setClipboardPrimaryContent(content.id) })
+                    onCopy = { viewModel.setClipboardPrimaryContent(content.id) },
+                    onDelete = { viewModel.deleteContent(content.id) }
+                )
             }
         }
+    }
+
+    if (showDeleteDialog) {
+        AlertDialog(
+            onDismissRequest = { viewModel.showDeleteDialog = false },
+            title = { AppText("Delete all history?") },
+            text = { AppText("Are you sure you want to delete all clipboard history? This action cannot be undone.") },
+            confirmButton = {
+                TextButton(
+                    onClick = {
+                        viewModel.clearAll()
+                        viewModel.showDeleteDialog = false
+                    }
+                ) {
+                    AppText("Delete")
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = { viewModel.showDeleteDialog = false }) {
+                    AppText("Cancel")
+                }
+            }
+        )
     }
 }

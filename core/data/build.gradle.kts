@@ -11,6 +11,7 @@ kotlin {
             implementation(projects.core.database)
             implementation(projects.core.domain)
             implementation(projects.shared.clipboard)
+            implementation(projects.shared.storage)
         }
     }
 }

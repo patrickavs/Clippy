@@ -19,6 +19,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.layout.wrapContentHeight
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CopyAll
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
@@ -57,6 +58,7 @@ private fun getContentTypeText(content: ClipboardContentUiModel) = when (content
 internal fun ClipboardContentSection(
     clipboardContentUiModel: ClipboardContentUiModel,
     onCopy: () -> Unit,
+    onDelete: (() -> Unit)? = null,
     maxHeight: Dp = 250.dp,
     content: @Composable () -> Unit
 ) {
@@ -138,6 +140,18 @@ internal fun ClipboardContentSection(
                         time = clipboardContentUiModel.createdAt,
                         style = MaterialTheme.typography.labelMedium
                     )
+                    onDelete?.let {
+                        AppIconButton(
+                            onClick = onDelete,
+                            modifier = Modifier.size(24.dp)
+                        ) {
+                            Icon(
+                                imageVector = Icons.Rounded.Delete,
+                                contentDescription = "Delete",
+                                modifier = Modifier.size(20.dp)
+                            )
+                        }
+                    }
                     AppIconButton(
                         onClick = onCopy,
                         modifier = Modifier.size(24.dp)

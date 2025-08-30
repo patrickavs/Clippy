@@ -16,6 +16,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.CopyAll
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.KeyboardArrowDown
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.Icon
@@ -43,6 +44,7 @@ private fun extractFileName(path: String) = path.split("/").lastOrNull().orEmpty
 fun FilesContentView(
     content: ClipboardContentUiModel.Files,
     onCopy: () -> Unit,
+    onDelete: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(content.paths.size == 1) }
 
@@ -56,7 +58,8 @@ fun FilesContentView(
                 content = content,
                 isExpanded = isExpanded,
                 onToggleExpand = { isExpanded = !isExpanded },
-                onCopy = onCopy
+                onCopy = onCopy,
+                onDelete = onDelete
             )
         }
     }
@@ -81,6 +84,7 @@ private fun FilesHeaderCard(
     content: ClipboardContentUiModel.Files,
     isExpanded: Boolean,
     onCopy: () -> Unit,
+    onDelete: () -> Unit,
     onToggleExpand: () -> Unit
 ) {
     val interactionSource = remember { MutableInteractionSource() }
@@ -130,6 +134,18 @@ private fun FilesHeaderCard(
             ) {
                 Icon(
                     imageVector = Icons.Rounded.CopyAll,
+                    contentDescription = null,
+                    modifier = Modifier.size(20.dp)
+                )
+            }
+
+
+            AppIconButton(
+                onClick = onDelete,
+                modifier = Modifier.size(24.dp).alpha(alpha)
+            ) {
+                Icon(
+                    imageVector = Icons.Rounded.Delete,
                     contentDescription = null,
                     modifier = Modifier.size(20.dp)
                 )

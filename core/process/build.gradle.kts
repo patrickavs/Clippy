@@ -8,6 +8,7 @@ kotlin {
     sourceSets {
         commonMain.dependencies {
             implementation(projects.shared.clipboard)
+            implementation(projects.shared.storage)
             implementation(projects.core.database)
         }
     }
