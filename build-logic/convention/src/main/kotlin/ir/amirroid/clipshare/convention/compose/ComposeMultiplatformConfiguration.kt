@@ -29,13 +29,19 @@ private fun Project.configureCommonMain(sourceSets: NamedDomainObjectContainer<K
         implementation(dependencies.runtime)
         implementation(dependencies.foundation)
         implementation(dependencies.ui)
+        implementation(dependencies.materialIconsExtended)
         implementation(dependencies.components.resources)
 
         implementation(libs.findLibrary("material3").get())
         implementation(libs.findLibrary("androidx-lifecycle-viewmodel").get())
         implementation(libs.findLibrary("androidx-lifecycle-runtimeCompose").get())
 
-        implementIfNotSelf(":core:design-system")
+        val designSystem = ":core:design-system"
+        implementIfNotSelf(designSystem)
+
+        if (project.path != designSystem) {
+            implementIfNotSelf(":shared:common:compose")
+        }
     }
 }
 

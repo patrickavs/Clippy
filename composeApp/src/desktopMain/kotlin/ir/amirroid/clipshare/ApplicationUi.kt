@@ -29,7 +29,11 @@ object ApplicationUi {
                 position = WindowPosition.Aligned(Alignment.Center)
             )
         ) {
-            SideEffect { window.minimumSize = Dimension(600, 500) }
+            SideEffect {
+                val currentSize = window.size
+                window.minimumSize = Dimension(400, 300)
+                window.size = currentSize
+            }
             content.invoke()
         }
     }

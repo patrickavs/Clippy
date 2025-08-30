@@ -43,9 +43,14 @@ class ClipboardProcessorServiceImpl(
                 ClipboardType.FILES
             )
 
-            is ClipboardContent.RichText -> AddRequest(
+            is ClipboardContent.Rtf -> AddRequest(
                 content.content,
-                if (content.type == ClipboardContent.RichText.Type.RTF) ClipboardType.RTF else ClipboardType.HTML
+                ClipboardType.RTF
+            )
+
+            is ClipboardContent.Html -> AddRequest(
+                json.encodeToString(content.data),
+                ClipboardType.HTML
             )
 
             is ClipboardContent.Image -> AddRequest(

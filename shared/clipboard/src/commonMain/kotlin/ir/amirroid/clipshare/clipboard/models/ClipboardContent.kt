@@ -15,7 +15,6 @@ sealed interface ClipboardContent {
     }
 
     data class Files(val paths: List<String>) : ClipboardContent
-    data class RichText(val content: String, val type: Type) : ClipboardContent {
-        enum class Type { RTF, HTML }
-    }
+    data class Rtf(val content: String) : ClipboardContent
+    data class Html(val data: HtmlWithPlainText) : ClipboardContent
 }

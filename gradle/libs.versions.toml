@@ -1,4 +1,5 @@
 [versions]
+adaptive = "1.1.2"
 agp = "8.12.1"
 android-compileSdk = "36"
 android-minSdk = "24"
@@ -14,16 +15,20 @@ composeHotReload = "1.0.0-beta04"
 kotlinxIoCore = "0.8.0"
 material3 = "1.9.0-alpha04"
 navigationCompose = "2.9.0-beta03"
-composeMultiplatform = "1.9.0-rc01"
+composeMultiplatform = "1.8.2"
+coroutines = "1.10.2"
 kermit = "2.0.8"
 koin-bom = "4.1.0"
 junit = "4.13.2"
 kotlin = "2.2.10"
 kotlinx-coroutines = "1.10.2"
 jgit = "7.3.0.202506031305-r"
+richeditorCompose = "1.0.0-rc13"
 sqldelight = "2.1.0"
+kotlinx-datetime = "0.7.1"
 
 [libraries]
+adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }
@@ -40,6 +45,8 @@ material3 = { module = "org.jetbrains.compose.material3:material3", version.ref 
 navigation-compose = { module = "org.jetbrains.androidx.navigation:navigation-compose", version.ref = "navigationCompose" }
 kotlinx-serialization = { module = "org.jetbrains.kotlinx:kotlinx-serialization-json", version.ref = "kotlinx-serialization" }
 kotlinx-collections = { module = "org.jetbrains.kotlinx:kotlinx-collections-immutable", version.ref = "kotlinx-collections" }
+kotlinx-datetime = { module = "org.jetbrains.kotlinx:kotlinx-datetime", version.ref = "kotlinx-datetime" }
+coroutines-core = { module = "org.jetbrains.kotlinx:kotlinx-coroutines-core", version.ref = "coroutines" }
 
 # Koin
 koin-bom = { module = "io.insert-koin:koin-bom", version.ref = "koin-bom" }
@@ -56,6 +63,7 @@ plugin-kotlin-compiler = { module = "org.jetbrains.kotlin:kotlin-gradle-plugin",
 
 
 # SQLDelight
+richeditor-compose = { module = "com.mohamedrejeb.richeditor:richeditor-compose", version.ref = "richeditorCompose" }
 sqldelight-driver-native = { module = "app.cash.sqldelight:native-driver", version.ref = "sqldelight" }
 sqldelight-driver-android = { module = "app.cash.sqldelight:android-driver", version.ref = "sqldelight" }
 sqldelight-coroutines = { module = "app.cash.sqldelight:coroutines-extensions", version.ref = "sqldelight" }

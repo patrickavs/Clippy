@@ -1,9 +1,12 @@
 package ir.amirroid.clipshare.clipboard.manager
 
 import ir.amirroid.clipshare.clipboard.models.ClipboardContent
+import ir.amirroid.clipshare.clipboard.utils.ClipboardContentRequestConverter
 import java.awt.datatransfer.FlavorListener
 
-class DesktopClipboardManagerImpl : BasicClipboardManager() {
+class DesktopClipboardManagerImpl(
+    contentRequestConverter: ClipboardContentRequestConverter
+) : BasicClipboardManager(contentRequestConverter) {
     private var listener: FlavorListener? = null
 
     override fun addOnChangedListener(action: (ClipboardContent) -> Unit) {
