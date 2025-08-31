@@ -17,18 +17,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun App() {
-    val snakeState = remember { SnackbarHostState() }
-
-    LaunchedEffect(Unit) {
-        EventBus.subscribe<NotificationRequest> {
-            launch {
-                snakeState.showSnackbar(
-                    message = it.title,
-                    actionLabel = it.description
-                )
-            }
-        }
-    }
+    val snakeState = rememberSnackbarHostState()
 
     ClipShareTheme {
         Scaffold(
@@ -41,4 +30,21 @@ fun App() {
             MainNavigation()
         }
     }
+}
+
+@Composable
+private fun rememberSnackbarHostState(): SnackbarHostState {
+    val snakeState = remember { SnackbarHostState() }
+
+    LaunchedEffect(Unit) {
+        EventBus.subscribe<NotificationRequest> {
+            launch {
+                snakeState.showSnackbar(
+                    message = it.title,
+                    actionLabel = it.description
+                )
+            }
+        }
+    }
+    return snakeState
 }

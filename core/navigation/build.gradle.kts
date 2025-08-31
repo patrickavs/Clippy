@@ -10,6 +10,7 @@ kotlin {
             implementation(libs.navigation.compose)
 
             implementation(projects.features.history)
+            implementation(projects.features.devices)
         }
     }
 }

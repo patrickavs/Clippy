@@ -30,11 +30,15 @@ class ClipboardContentRequestConverter(private val json: Json) {
 
 
             ClipboardContentType.FILES -> {
+                val files = json.decodeFromString<List<String>>(request.data)
                 createTransferable(DataFlavor.javaFileListFlavor) {
-                    json.decodeFromString<List<String>>(request.data)
-                        .map { java.io.File(it.trim()) }
+                    files.map { java.io.File(it.trim()) }
                 }.also {
-                    EventBus.publish(NotificationRequest("Files Copied"))
+                    if (files.size == 1) {
+                        EventBus.publish(NotificationRequest("File Copied"))
+                    } else {
+                        EventBus.publish(NotificationRequest("${files.size} Files Copied"))
+                    }
                 }
             }
 

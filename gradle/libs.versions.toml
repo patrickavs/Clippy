@@ -1,5 +1,4 @@
 [versions]
-adaptive = "1.1.2"
 agp = "8.12.1"
 android-compileSdk = "36"
 android-minSdk = "24"
@@ -27,7 +26,6 @@ sqldelight = "2.1.0"
 kotlinx-datetime = "0.7.1"
 
 [libraries]
-adaptive = { module = "org.jetbrains.compose.material3.adaptive:adaptive", version.ref = "adaptive" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }
 kotlin-testJunit = { module = "org.jetbrains.kotlin:kotlin-test-junit", version.ref = "kotlin" }

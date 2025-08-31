@@ -1,6 +1,7 @@
 package ir.amirroid.clipshare.history.components
 
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateDpAsState
 import androidx.compose.animation.core.animateFloatAsState
 import androidx.compose.foundation.background
 import androidx.compose.foundation.hoverable
@@ -32,12 +33,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
+import androidx.compose.ui.draw.clipToBounds
 import androidx.compose.ui.graphics.Brush
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.onSizeChanged
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.isUnspecified
 import ir.amirroid.clipshare.common.compose.RelativeTimeText
 import ir.amirroid.clipshare.design_system.components.AppCard
 import ir.amirroid.clipshare.design_system.components.AppIconButton
@@ -70,6 +73,11 @@ internal fun ClipboardContentSection(
     var needToExpand by remember { mutableStateOf(false) }
     val density = LocalDensity.current
 
+    var contentHeight by remember { mutableStateOf(maxHeight) }
+    val currentHeight by animateDpAsState(
+        if (isExpanded) contentHeight else maxHeight
+    )
+
     AppCard(
         modifier = Modifier
             .fillMaxWidth()
@@ -90,22 +98,27 @@ internal fun ClipboardContentSection(
                 Spacer(Modifier.height(4.dp))
                 Box(
                     modifier = Modifier
-                        .animateContentSize()
+                        .clipToBounds()
                         .then(
-                            if (isExpanded) Modifier
-                            else Modifier.heightIn(max = maxHeight)
+                            when {
+                                !needToExpand -> Modifier.heightIn(max = maxHeight)
+                                else -> Modifier.height(currentHeight)
+                            }
                         )
                         .then(
                             if (isExpanded && needToExpand) Modifier.padding(bottom = 36.dp)
                             else Modifier
                         ),
-                    contentAlignment = Alignment.BottomCenter
                 ) {
                     Box(
                         modifier = Modifier
                             .wrapContentHeight(unbounded = true, align = Alignment.Top)
+                            .fillMaxWidth()
                             .onSizeChanged {
                                 needToExpand = it.height > with(density) { maxHeight.toPx() }
+                                if (needToExpand && contentHeight != 0.dp) {
+                                    contentHeight = with(density) { it.height.toDp() + 32.dp }
+                                }
                             }
                     ) {
                         content()
@@ -115,6 +128,7 @@ internal fun ClipboardContentSection(
                     if (needToExpand && !isExpanded) {
                         Box(
                             modifier = Modifier
+                                .align(Alignment.BottomCenter)
                                 .padding(top = 4.dp)
                                 .fillMaxWidth()
                                 .height(86.dp)

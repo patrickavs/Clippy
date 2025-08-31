@@ -52,5 +52,6 @@ include(":core:design-system")
 
 // Features
 include(":features:history")
+include(":features:devices")
 
 includeBuild("build-logic")

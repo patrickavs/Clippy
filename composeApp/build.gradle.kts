@@ -32,6 +32,8 @@ compose.desktop {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
             packageName = "ir.amirroid.clipshare"
             packageVersion = "1.0.0"
+
+            jvmArgs("-Dapple.awt.application.appearance=system")
         }
     }
 }

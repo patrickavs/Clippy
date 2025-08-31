@@ -9,6 +9,7 @@ import ir.amirroid.clipshare.domain.usecase.clipboard.DeleteClipboardHistoryUseC
 import ir.amirroid.clipshare.domain.usecase.clipboard.DeleteClipboardItemUseCase
 import ir.amirroid.clipshare.domain.usecase.clipboard.GetClipboardHistoryUseCase
 import ir.amirroid.clipshare.domain.usecase.clipboard.SetClipboardContentUseCase
+import ir.amirroid.clipshare.domain.usecase.clipboard.SetOneFileClipboardUseCase
 import ir.amirroid.clipshare.ui_models.clipboard.toUiModel
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.SharingStarted
@@ -21,7 +22,8 @@ class ClipboardHistoryViewModel(
     private val setClipboardContentUseCase: SetClipboardContentUseCase,
     private val dispatcher: CoroutineDispatcher,
     private val deleteClipboardHistoryUseCase: DeleteClipboardHistoryUseCase,
-    private val deleteClipboardItemUseCase: DeleteClipboardItemUseCase
+    private val deleteClipboardItemUseCase: DeleteClipboardItemUseCase,
+    private val setOneFileClipboardUseCase: SetOneFileClipboardUseCase
 ) : ViewModel() {
     val history = getClipboardHistoryUseCase()
         .map { domains -> domains.map { it.toUiModel() } }
@@ -31,6 +33,10 @@ class ClipboardHistoryViewModel(
 
     fun setClipboardPrimaryContent(id: Long) = viewModelScope.launch(dispatcher) {
         setClipboardContentUseCase.invoke(id)
+    }
+
+    fun setFileClipboardPrimaryContent(file: String) = viewModelScope.launch(dispatcher) {
+        setOneFileClipboardUseCase.invoke(file)
     }
 
     fun clearAll() = viewModelScope.launch(dispatcher) {

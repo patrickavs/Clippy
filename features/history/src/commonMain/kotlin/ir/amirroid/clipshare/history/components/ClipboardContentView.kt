@@ -17,6 +17,7 @@ import ir.amirroid.clipshare.ui_models.clipboard.ClipboardContentUiModel
 internal fun ClipboardContentView(
     content: ClipboardContentUiModel,
     onCopy: () -> Unit,
+    onCopyFile: (String) -> Unit,
     onDelete: () -> Unit
 ) {
     when (content) {
@@ -46,7 +47,7 @@ internal fun ClipboardContentView(
         }
 
         is ClipboardContentUiModel.Files -> {
-            FilesContentView(content, onCopy, onDelete)
+            FilesContentView(content, onCopy, onCopyFile, onDelete)
         }
 
         is ClipboardContentUiModel.RichText -> {

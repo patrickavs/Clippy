@@ -35,6 +35,14 @@ class ClipboardRepositoryImpl(
         clipboardManager.setContent(request)
     }
 
+    override suspend fun setFileClipboardContent(file: String) {
+        val request = ClipboardContentRequest(
+            type = ClipboardContentType.FILES,
+            data = "[\"${file}\"]"
+        )
+        clipboardManager.setContent(request)
+    }
+
     override suspend fun deleteEntity(id: Long) {
         val entity = clipboardDao.getEntityById(id)
         if (entity.type == ClipboardType.IMAGE) {

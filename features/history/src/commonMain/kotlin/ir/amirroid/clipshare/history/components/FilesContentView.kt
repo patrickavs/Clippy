@@ -44,13 +44,14 @@ private fun extractFileName(path: String) = path.split("/").lastOrNull().orEmpty
 fun FilesContentView(
     content: ClipboardContentUiModel.Files,
     onCopy: () -> Unit,
+    onCopyFile: (String) -> Unit,
     onDelete: () -> Unit
 ) {
     var isExpanded by remember { mutableStateOf(content.paths.size == 1) }
 
     Column(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(isExpanded) {
-            FilesList(content)
+            FilesList(content, onCopyFile)
         }
 
         if (content.paths.size != 1) {
@@ -66,13 +67,16 @@ fun FilesContentView(
 }
 
 @Composable
-private fun FilesList(content: ClipboardContentUiModel.Files) {
+private fun FilesList(
+    content: ClipboardContentUiModel.Files,
+    onCopyFile: (String) -> Unit
+) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(bottom = if (content.paths.size == 1) 0.dp else 12.dp)
     ) {
         content.paths.forEach { path ->
-            ClipboardContentSection(content, onCopy = {}) {
+            ClipboardContentSection(content, onCopy = { onCopyFile.invoke(path) }) {
                 AppText(text = extractFileName(path))
             }
         }

@@ -18,6 +18,7 @@ kotlin {
 
 
             implementation(projects.features.history)
+            implementation(projects.features.devices)
         }
     }
 }
