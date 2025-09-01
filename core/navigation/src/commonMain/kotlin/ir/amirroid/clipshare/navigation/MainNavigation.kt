@@ -47,7 +47,8 @@ fun MainNavigation() {
     }) {
         NavHost(
             navController = navController,
-            startDestination = Screen.History
+            startDestination = Screen.History,
+            modifier = Modifier.fillMaxSize()
         ) {
             composable<Screen.History> {
                 ClipboardHistoryScreen()

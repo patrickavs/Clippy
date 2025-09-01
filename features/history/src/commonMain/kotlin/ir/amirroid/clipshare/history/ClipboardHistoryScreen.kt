@@ -56,8 +56,11 @@ fun ClipboardHistoryScreen(
     val columns = rememberColumnCount()
     val showDeleteDialog = viewModel.showDeleteDialog
     val lazyState = rememberLazyStaggeredGridState()
+
     LaunchedEffect(history) {
+        if (history.size == viewModel.lastItemsSize) return@LaunchedEffect
         lazyState.animateScrollToItem(0)
+        viewModel.lastItemsSize = history.size
     }
 
     Column {

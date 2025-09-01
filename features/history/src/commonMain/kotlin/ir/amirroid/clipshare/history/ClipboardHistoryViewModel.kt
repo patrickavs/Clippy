@@ -29,6 +29,8 @@ class ClipboardHistoryViewModel(
         .map { domains -> domains.map { it.toUiModel() } }
         .stateIn(viewModelScope, SharingStarted.Eagerly, emptyList())
 
+    var lastItemsSize = 0
+
     var showDeleteDialog by mutableStateOf(false)
 
     fun setClipboardPrimaryContent(id: Long) = viewModelScope.launch(dispatcher) {

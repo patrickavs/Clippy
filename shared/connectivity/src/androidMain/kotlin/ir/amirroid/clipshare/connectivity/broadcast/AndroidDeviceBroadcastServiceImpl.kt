@@ -11,6 +11,9 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancelAndJoin
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.isActive
 import kotlinx.coroutines.launch
 import kotlinx.serialization.json.Json
@@ -26,6 +29,9 @@ class AndroidDeviceBroadcastServiceImpl(
     private var job: Job? = null
     private val scope = CoroutineScope(Dispatchers.IO + SupervisorJob())
 
+    private val _isStarted = MutableStateFlow(false)
+    override val isStarted: StateFlow<Boolean> = _isStarted
+
     override suspend fun startBroadcasting() {
         stopBroadcasting() // ensure no duplicate job
         job = scope.launch { broadcastLoop() }
@@ -38,6 +44,7 @@ class AndroidDeviceBroadcastServiceImpl(
 
             val packet = createBroadcastPacket()
 
+            _isStarted.update { true }
             while (isActive) {
                 s.send(packet)
                 delay(DeviceBroadcastService.BROADCAST_INTERVAL_MS)
@@ -70,5 +77,6 @@ class AndroidDeviceBroadcastServiceImpl(
         job = null
         socket?.close()
         socket = null
+        _isStarted.update { false }
     }
 }
