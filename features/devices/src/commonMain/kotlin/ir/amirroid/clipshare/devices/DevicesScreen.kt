@@ -1,6 +1,7 @@
 package ir.amirroid.clipshare.devices
 
 import androidx.compose.animation.AnimatedContent
+import androidx.compose.animation.animateContentSize
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -11,10 +12,18 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.DesktopMac
+import androidx.compose.material.icons.rounded.DesktopWindows
+import androidx.compose.material.icons.rounded.Phone
+import androidx.compose.material.icons.rounded.PhoneAndroid
+import androidx.compose.material.icons.rounded.PhoneIphone
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
+import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
@@ -31,6 +40,7 @@ import ir.amirroid.clipshare.design_system.components.AppListItem
 import ir.amirroid.clipshare.design_system.components.AppText
 import ir.amirroid.clipshare.design_system.components.AppTopAppBar
 import ir.amirroid.clipshare.design_system.components.ExpandableSection
+import ir.amirroid.clipshare.domain.models.DevicePlatform
 import ir.amirroid.clipshare.ui_models.device.DiscoveredDeviceUiModel
 import kotlinx.collections.immutable.ImmutableList
 import org.koin.compose.viewmodel.koinViewModel
@@ -82,7 +92,8 @@ fun DevicesScreen(
             item("devices") {
                 ExpandableSection(
                     title = "Connected Devices",
-                    modifier = Modifier.weight(1f).animateItem()
+                    modifier = Modifier.weight(1f).animateItem(),
+                    expandedByDefault = true
                 ) {
 
                 }
@@ -91,7 +102,8 @@ fun DevicesScreen(
                 ExpandableSection(
                     title = "Nearby Devices",
                     icons = { LoadingIndicator(modifier = Modifier.size(40.dp)) },
-                    modifier = Modifier.weight(1f).animateItem()
+                    modifier = Modifier.weight(1f).animateItem(),
+                    expandedByDefault = true
                 ) {
                     DevicesList(screenState.nearbyDevices)
                 }
@@ -185,13 +197,45 @@ private fun BroadcastStatus(
 private fun DevicesList(
     devices: ImmutableList<DiscoveredDeviceUiModel>
 ) {
-    Column {
+    Column(modifier = Modifier.animateContentSize().fillMaxWidth()) {
         devices.forEach {
             key(it.id) {
-                AppListItem(headlineContent = {
-                    AppText(it.name)
-                })
+                DeviceItem(it)
             }
         }
     }
+}
+
+@Composable
+fun DeviceItem(device: DiscoveredDeviceUiModel) {
+    AppListItem(headlineContent = {
+        AppText(device.name)
+    }, leadingContent = {
+        when (device.platform) {
+            DevicePlatform.ANDROID -> {
+                Icon(
+                    Icons.Rounded.PhoneAndroid,
+                    contentDescription = null
+                )
+            }
+
+            DevicePlatform.IOS -> {
+                Icon(
+                    Icons.Rounded.PhoneIphone,
+                    contentDescription = null
+                )
+            }
+
+            DevicePlatform.DESKTOP -> {
+                Icon(
+                    Icons.Rounded.DesktopWindows,
+                    contentDescription = null
+                )
+            }
+        }
+    }, trailingContent = {
+        AppButton(onClick = {}) {
+            Text("Connect")
+        }
+    })
 }

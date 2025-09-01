@@ -4,6 +4,7 @@ import ir.amirroid.clipshare.common.app.utils.Constants
 import ir.amirroid.clipshare.connectivity.device.DeviceUidProvider
 import ir.amirroid.clipshare.connectivity.models.DiscoveredDevice
 import ir.amirroid.clipshare.connectivity.models.DiscoveredPlatform
+import ir.amirroid.clipshare.connectivity.models.RequestType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -37,11 +38,11 @@ class DesktopDeviceBroadcastServiceImpl(
     }
 
     private suspend fun CoroutineScope.broadcastLoop() {
-        DatagramSocket().use { s ->
+        DatagramSocket().also { s ->
             s.broadcast = true
             socket = s
 
-            val packet = createBroadcastPacket()
+            val packet = createBroadcastPacket(RequestType.ADD)
 
             _isStarted.update { true }
             while (isActive) {
@@ -51,8 +52,8 @@ class DesktopDeviceBroadcastServiceImpl(
         }
     }
 
-    private fun createBroadcastPacket(): DatagramPacket {
-        val device = buildDeviceInfo()
+    private fun createBroadcastPacket(type: RequestType): DatagramPacket {
+        val device = buildDeviceInfo(type)
         val data = json.encodeToString(device).toByteArray()
         return DatagramPacket(
             data,
@@ -62,7 +63,7 @@ class DesktopDeviceBroadcastServiceImpl(
         )
     }
 
-    private fun buildDeviceInfo(): DiscoveredDevice {
+    private fun buildDeviceInfo(type: RequestType): DiscoveredDevice {
         val osName = System.getProperty("os.name")
         val osVersion = System.getProperty("os.version")
         val userName = System.getProperty("user.name")
@@ -72,13 +73,15 @@ class DesktopDeviceBroadcastServiceImpl(
         return DiscoveredDevice(
             name = deviceName,
             platform = DiscoveredPlatform.DESKTOP,
-            deviceId = deviceUidProvider.getDeviceId()
+            deviceId = deviceUidProvider.getDeviceId(),
+            requestType = type
         )
     }
 
     override suspend fun stopBroadcasting() {
         job?.cancelAndJoin()
         job = null
+        socket?.send(createBroadcastPacket(RequestType.REMOVE))
         socket?.close()
         socket = null
         _isStarted.update { false }

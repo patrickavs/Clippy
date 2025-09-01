@@ -4,5 +4,6 @@ import ir.amirroid.clipshare.domain.models.DiscoveredDeviceDomain
 
 fun DiscoveredDeviceDomain.toUiModel() = DiscoveredDeviceUiModel(
     name = name,
-    id = id
+    id = id,
+    platform = platform
 )

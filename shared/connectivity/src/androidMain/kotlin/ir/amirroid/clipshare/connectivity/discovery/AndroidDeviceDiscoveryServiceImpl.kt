@@ -3,6 +3,7 @@ package ir.amirroid.clipshare.connectivity.discovery
 import ir.amirroid.clipshare.common.app.utils.Constants
 import ir.amirroid.clipshare.connectivity.device.DeviceUidProvider
 import ir.amirroid.clipshare.connectivity.models.DiscoveredDevice
+import ir.amirroid.clipshare.connectivity.models.RequestType
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -74,9 +75,15 @@ class AndroidDeviceDiscoveryServiceImpl(
 
     private fun updateIncoming(device: DiscoveredDevice) {
         if (device.deviceId == deviceUidProvider.getDeviceId()) return
-        val current = _incoming.value.toMutableList()
-        val index = current.indexOfFirst { it.ip == device.ip }
-        if (index >= 0) current[index] = device else current.add(device)
-        _incoming.update { current }
+
+        if (device.requestType == RequestType.ADD) {
+            val current = _incoming.value.toMutableList()
+            val index = current.indexOfFirst { it.ip == device.ip }
+            if (index >= 0) current[index] = device else current.add(device)
+            _incoming.update { current }
+        } else {
+            val new = _incoming.value.filter { it.deviceId != device.deviceId }
+            _incoming.update { new }
+        }
     }
 }
