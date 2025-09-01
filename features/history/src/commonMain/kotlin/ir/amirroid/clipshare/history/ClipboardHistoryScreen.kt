@@ -8,6 +8,7 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.foundation.lazy.staggeredgrid.items
+import androidx.compose.foundation.lazy.staggeredgrid.rememberLazyStaggeredGridState
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material3.AlertDialog
@@ -15,6 +16,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalDensity
@@ -53,6 +55,10 @@ fun ClipboardHistoryScreen(
     val history by viewModel.history.collectAsStateWithLifecycle()
     val columns = rememberColumnCount()
     val showDeleteDialog = viewModel.showDeleteDialog
+    val lazyState = rememberLazyStaggeredGridState()
+    LaunchedEffect(history) {
+        lazyState.animateScrollToItem(0)
+    }
 
     Column {
         AppTopAppBar(
@@ -60,11 +66,13 @@ fun ClipboardHistoryScreen(
                 AppText("History")
             },
             actions = {
-                AppIconButton(onClick = { viewModel.showDeleteDialog = true }) {
-                    Icon(
-                        Icons.Rounded.Delete,
-                        contentDescription = null
-                    )
+                if (history.isNotEmpty()) {
+                    AppIconButton(onClick = { viewModel.showDeleteDialog = true }) {
+                        Icon(
+                            Icons.Rounded.Delete,
+                            contentDescription = null
+                        )
+                    }
                 }
             }
         )
@@ -73,7 +81,8 @@ fun ClipboardHistoryScreen(
             contentPadding = PaddingValues(12.dp),
             verticalItemSpacing = 12.dp,
             horizontalArrangement = Arrangement.spacedBy(12.dp),
-            modifier = Modifier.fillMaxSize()
+            modifier = Modifier.fillMaxSize(),
+            state = lazyState
         ) {
             items(history, key = { it.id }) { content ->
                 Box(Modifier.animateItem()) {

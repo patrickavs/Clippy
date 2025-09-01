@@ -51,7 +51,7 @@ fun FilesContentView(
 
     Column(modifier = Modifier.fillMaxWidth()) {
         AnimatedVisibility(isExpanded) {
-            FilesList(content, onCopyFile)
+            FilesList(content, onCopyFile, onDelete)
         }
 
         if (content.paths.size != 1) {
@@ -69,14 +69,19 @@ fun FilesContentView(
 @Composable
 private fun FilesList(
     content: ClipboardContentUiModel.Files,
-    onCopyFile: (String) -> Unit
+    onCopyFile: (String) -> Unit,
+    onDelete: () -> Unit
 ) {
     Column(
         verticalArrangement = Arrangement.spacedBy(8.dp),
         modifier = Modifier.padding(bottom = if (content.paths.size == 1) 0.dp else 12.dp)
     ) {
         content.paths.forEach { path ->
-            ClipboardContentSection(content, onCopy = { onCopyFile.invoke(path) }) {
+            ClipboardContentSection(
+                content,
+                onCopy = { onCopyFile.invoke(path) },
+                onDelete = onDelete.takeIf { content.paths.size == 1 }
+            ) {
                 AppText(text = extractFileName(path))
             }
         }
