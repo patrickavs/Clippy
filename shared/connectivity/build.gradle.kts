@@ -6,5 +6,14 @@ plugins {
 
 kotlin {
     sourceSets {
+        androidMain.dependencies {
+            implementation(libs.webrtc.android)
+        }
+        desktopMain.dependencies {
+            implementation(libs.webrtc.java)
+        }
+        commonMain.dependencies {
+            implementation(projects.shared.network)
+        }
     }
 }

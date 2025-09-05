@@ -5,6 +5,7 @@ import ir.amirroid.clipshare.connectivity.di.connectivityModule
 import ir.amirroid.clipshare.data.di.repositoryModule
 import ir.amirroid.clipshare.database.di.databaseModule
 import ir.amirroid.clipshare.domain.di.useCaseModule
+import ir.amirroid.clipshare.network.di.networkModule
 import ir.amirroid.clipshare.process.di.processorModule
 import ir.amirroid.clipshare.storage.storageModule
 import org.koin.core.context.startKoin
@@ -15,7 +16,7 @@ object DependencyInjection {
         appDeclaration?.invoke(this)
         modules(
             otherModules, connectivityModule, clipboardModule, databaseModule, processorModule,
-            repositoryModule, useCaseModule, viewModelModule, storageModule
+            repositoryModule, useCaseModule, viewModelModule, storageModule, networkModule
         )
     }
 }

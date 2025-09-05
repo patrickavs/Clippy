@@ -11,6 +11,7 @@ kotlin {
             implementation(projects.shared.connectivity)
             implementation(projects.shared.clipboard)
             implementation(projects.shared.storage)
+            implementation(projects.shared.network)
             implementation(projects.core.database)
             implementation(projects.core.process)
             implementation(projects.core.data)

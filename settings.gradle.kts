@@ -38,6 +38,7 @@ include(":shared:common:app")
 include(":shared:common:compose")
 include(":shared:connectivity")
 include(":shared:clipboard")
+include(":shared:network")
 include(":shared:storage")
 
 // Core
