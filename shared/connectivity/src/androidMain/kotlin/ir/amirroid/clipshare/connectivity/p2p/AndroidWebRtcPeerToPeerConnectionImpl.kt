@@ -21,7 +21,7 @@ import kotlin.coroutines.resumeWithException
 
 class AndroidWebRtcPeerToPeerConnectionImpl(
     private val peerConnectionFactory: PeerConnectionFactory,
-    private val deviceUidProvider: DeviceUidProvider,
+    private val deviceUidProvider: DeviceUidProvider
 ) : PeerToPeerConnectionService {
 
     private var peerConnection: PeerConnection? = null
@@ -33,11 +33,7 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
 
     override suspend fun createOffer(targetDeviceId: String): SignalingMessage {
         val pc = getOrCreatePeerConnection()
-        if (dataChannel == null) {
-            val init = DataChannel.Init()
-            dataChannel = pc.createDataChannel(PeerToPeerConnectionService.DATA_CHANNEL_LABEL, init)
-            registerDataChannelObserver()
-        }
+        ensureDataChannel(pc)
         val sdp = pc.createSdp(MediaConstraints(), true)
         val signalingSdp = SignalingMapper.fromWebRtcSdp(sdp)
         return SignalingMessage(
@@ -54,6 +50,7 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
             message.sdp ?: throw IllegalArgumentException("Missing SDP")
         )
         pc.setRemoteDescription(SimpleSdpObserver(), remoteSdp)
+        ensureDataChannel(pc)
         val sdp = pc.createSdp(MediaConstraints(), false)
         val signalingSdp = SignalingMapper.fromWebRtcSdp(sdp)
         return SignalingMessage(
@@ -81,12 +78,15 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
     }
 
     override fun onIceCandidate(callback: (SignalingIceCandidate) -> Unit) {
-        this.iceCandidateCallback = callback
+        iceCandidateCallback = callback
     }
 
     override suspend fun sendMessage(message: String) {
-        val buffer = DataChannel.Buffer(ByteBuffer.wrap(message.toByteArray(Charsets.UTF_8)), false)
-        dataChannel?.send(buffer)
+        dataChannel?.let { dc ->
+            val buffer =
+                DataChannel.Buffer(ByteBuffer.wrap(message.toByteArray(Charsets.UTF_8)), false)
+            if (dc.state() == DataChannel.State.OPEN) dc.send(buffer)
+        }
     }
 
     override fun onMessageReceived(action: (String) -> Unit) {
@@ -99,11 +99,20 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
         dataChannel = null
         peerConnection?.close()
         peerConnection = null
+        _connectionStatus.value = ConnectionStatus.DISCONNECTED
     }
 
     private fun getOrCreatePeerConnection(): PeerConnection {
         if (peerConnection == null) peerConnection = buildPeerConnection()
         return peerConnection!!
+    }
+
+    private fun ensureDataChannel(pc: PeerConnection) {
+        if (dataChannel == null) {
+            val init = DataChannel.Init()
+            dataChannel = pc.createDataChannel(PeerToPeerConnectionService.DATA_CHANNEL_LABEL, init)
+            registerDataChannelObserver()
+        }
     }
 
     private suspend fun PeerConnection.createSdp(
@@ -126,13 +135,16 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
         }
 
     private fun buildPeerConnection(): PeerConnection {
-        val rtcConfig = PeerConnection.RTCConfiguration(emptyList())
+        val iceServers = listOf(
+            PeerConnection.IceServer.builder("stun:stun.l.google.com:19302").createIceServer()
+        )
+        val rtcConfig = PeerConnection.RTCConfiguration(iceServers)
         return peerConnectionFactory.createPeerConnection(
             rtcConfig,
             object : PeerConnection.Observer {
                 override fun onIceCandidate(candidate: IceCandidate) {
-                    val message = SignalingMapper.fromWebRtcIce(candidate)
-                    iceCandidateCallback?.invoke(message)
+                    val msg = SignalingMapper.fromWebRtcIce(candidate)
+                    iceCandidateCallback?.invoke(msg)
                 }
 
                 override fun onDataChannel(dc: DataChannel) {
@@ -144,16 +156,23 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
                     updateConnectionStatus()
                 }
 
+                override fun onIceConnectionChange(newState: PeerConnection.IceConnectionState?) {
+                    updateConnectionStatus()
+                }
+
+                override fun onIceGatheringChange(newState: PeerConnection.IceGatheringState?) {
+                    if (newState == PeerConnection.IceGatheringState.COMPLETE) updateConnectionStatus()
+                }
+
                 override fun onIceCandidatesRemoved(p0: Array<out IceCandidate?>?) {}
                 override fun onSignalingChange(p0: PeerConnection.SignalingState?) {}
-                override fun onIceConnectionChange(p0: PeerConnection.IceConnectionState?) {}
                 override fun onIceConnectionReceivingChange(p0: Boolean) {}
-                override fun onIceGatheringChange(p0: PeerConnection.IceGatheringState?) {}
                 override fun onAddStream(p0: MediaStream?) {}
                 override fun onRemoveStream(p0: MediaStream?) {}
                 override fun onRenegotiationNeeded() {}
                 override fun onAddTrack(p0: RtpReceiver?, p1: Array<out MediaStream>?) {}
-            }) ?: throw IllegalStateException("Failed to build PeerConnection")
+            }
+        ) ?: throw IllegalStateException("Failed to build PeerConnection")
     }
 
     private fun registerDataChannelObserver() {
