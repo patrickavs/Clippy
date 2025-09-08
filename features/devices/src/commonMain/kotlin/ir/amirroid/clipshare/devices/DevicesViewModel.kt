@@ -2,12 +2,14 @@ package ir.amirroid.clipshare.devices
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.amirroid.clipshare.connectivity.sync.SyncService
 import ir.amirroid.clipshare.domain.usecase.device.GetIsStartedBroadcastingUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetNearByDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.StartBroadcastingDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.StartDiscoveringDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.StopBroadcastingDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.StopDiscoveringDevicesUseCase
+import ir.amirroid.clipshare.ui_models.device.DiscoveredDeviceUiModel
 import ir.amirroid.clipshare.ui_models.device.toUiModel
 import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineDispatcher
@@ -25,6 +27,7 @@ class DevicesViewModel(
     private val stopDiscoveringDevicesUseCase: StopDiscoveringDevicesUseCase,
     private val startBroadcastingDevicesUseCase: StartBroadcastingDevicesUseCase,
     private val stopBroadcastingDevicesUseCase: StopBroadcastingDevicesUseCase,
+    private val syncService: SyncService,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _screenState = MutableStateFlow(DevicesScreenState())
@@ -33,6 +36,9 @@ class DevicesViewModel(
     init {
         collectNearbyDevices()
         collectBroadcasting()
+        viewModelScope.launch(dispatcher) {
+            syncService.start()
+        }
     }
 
     private fun collectNearbyDevices() = viewModelScope.launch(dispatcher) {
@@ -64,5 +70,9 @@ class DevicesViewModel(
 
     fun stopBroadcasting() = viewModelScope.launch(dispatcher) {
         stopBroadcastingDevicesUseCase.invoke()
+    }
+
+    fun connectToDevice(device: DiscoveredDeviceUiModel) = viewModelScope.launch(dispatcher) {
+        syncService.call(device.id)
     }
 }

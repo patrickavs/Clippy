@@ -23,13 +23,13 @@ object SignalingMapper {
         return RTCSessionDescription(type, sdp.sdp)
     }
 
-//    fun fromWebRtcIce(candidate: IceCandidate): SignalingIceCandidate {
-//        return SignalingIceCandidate(
-//            sdpMid = candidate.sdpMid ?: "",
-//            sdpMLineIndex = candidate.sdpMLineIndex,
-//            candidate = candidate.sdp
-//        )
-//    }
+    fun fromWebRtcIce(candidate: RTCIceCandidate): SignalingIceCandidate {
+        return SignalingIceCandidate(
+            sdpMid = candidate.sdpMid ?: "",
+            sdpMLineIndex = candidate.sdpMLineIndex,
+            candidate = candidate.sdp
+        )
+    }
 
     fun toWebRtcIce(candidate: SignalingIceCandidate): RTCIceCandidate {
         return RTCIceCandidate(

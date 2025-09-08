@@ -9,6 +9,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.core.domain)
             implementation(projects.core.uiModels)
+            implementation(projects.shared.connectivity)
         }
     }
 }

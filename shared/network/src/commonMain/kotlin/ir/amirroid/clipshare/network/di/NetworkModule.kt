@@ -5,6 +5,8 @@ import io.ktor.client.HttpClientConfig
 import io.ktor.client.plugins.HttpTimeout
 import io.ktor.client.plugins.contentnegotiation.ContentNegotiation
 import io.ktor.client.plugins.defaultRequest
+import io.ktor.client.plugins.logging.Logger
+import io.ktor.client.plugins.logging.Logging
 import io.ktor.client.plugins.websocket.WebSockets
 import io.ktor.client.request.header
 import io.ktor.http.ContentType
@@ -13,11 +15,14 @@ import io.ktor.http.contentType
 import io.ktor.serialization.kotlinx.json.json
 import ir.amirroid.clipshare.common.app.utils.AppInfo
 import ir.amirroid.clipshare.network.client.createHttpClientProvider
+import ir.amirroid.clipshare.network.utils.SimpleLogger
 import kotlinx.serialization.json.Json
+import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.module
 
 val networkModule = module {
-    single<HttpClient> { createConfiguredClient(get()) }
+    singleOf<Logger>(::SimpleLogger)
+    single<HttpClient> { createConfiguredClient(get(), get()) }
 }
 
 private fun HttpClientConfig<*>.configureContentNegotiation(json: Json) {
@@ -35,7 +40,9 @@ private fun HttpClientConfig<*>.configureTimeout() {
 }
 
 private fun HttpClientConfig<*>.configureWebSocket() {
-    install(WebSockets)
+    install(WebSockets) {
+        pingIntervalMillis = 1000
+    }
 }
 
 
@@ -46,13 +53,21 @@ private fun HttpClientConfig<*>.configureDefaultRequest() {
     }
 }
 
+private fun HttpClientConfig<*>.configureLogging(logger: Logger) {
+    install(Logging) {
+        this.logger = logger
+    }
+}
+
 private fun createConfiguredClient(
-    json: Json
+    json: Json,
+    logger: Logger
 ): HttpClient {
     return createHttpClientProvider().provide().config {
         configureContentNegotiation(json)
         configureTimeout()
         configureDefaultRequest()
+        configureLogging(logger)
         configureWebSocket()
     }
 }

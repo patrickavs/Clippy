@@ -105,7 +105,7 @@ fun DevicesScreen(
                     modifier = Modifier.weight(1f).animateItem(),
                     expandedByDefault = true
                 ) {
-                    DevicesList(screenState.nearbyDevices)
+                    DevicesList(screenState.nearbyDevices, onConnect = viewModel::connectToDevice)
                 }
             }
             item("broadcast_devices") {
@@ -195,19 +195,20 @@ private fun BroadcastStatus(
 
 @Composable
 private fun DevicesList(
-    devices: ImmutableList<DiscoveredDeviceUiModel>
+    devices: ImmutableList<DiscoveredDeviceUiModel>,
+    onConnect: (DiscoveredDeviceUiModel) -> Unit
 ) {
     Column(modifier = Modifier.animateContentSize().fillMaxWidth()) {
-        devices.forEach {
-            key(it.id) {
-                DeviceItem(it)
+        devices.forEach { device ->
+            key(device.id) {
+                DeviceItem(device, onConnect = { onConnect.invoke(device) })
             }
         }
     }
 }
 
 @Composable
-fun DeviceItem(device: DiscoveredDeviceUiModel) {
+fun DeviceItem(device: DiscoveredDeviceUiModel, onConnect: () -> Unit) {
     AppListItem(headlineContent = {
         AppText(device.name)
     }, leadingContent = {
@@ -234,7 +235,7 @@ fun DeviceItem(device: DiscoveredDeviceUiModel) {
             }
         }
     }, trailingContent = {
-        AppButton(onClick = {}) {
+        AppButton(onClick = onConnect) {
             Text("Connect")
         }
     })

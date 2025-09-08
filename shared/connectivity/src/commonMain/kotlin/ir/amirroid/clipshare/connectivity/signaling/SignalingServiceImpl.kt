@@ -2,9 +2,13 @@ package ir.amirroid.clipshare.connectivity.signaling
 
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.webSocketSession
+import io.ktor.client.request.header
+import io.ktor.client.request.url
+import io.ktor.http.URLProtocol
 import io.ktor.websocket.Frame
 import io.ktor.websocket.WebSocketSession
 import io.ktor.websocket.readText
+import ir.amirroid.clipshare.connectivity.device.DeviceUidProvider
 import ir.amirroid.clipshare.connectivity.models.SignalingMessage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -16,15 +20,22 @@ import kotlinx.serialization.json.Json
 class SignalingServiceImpl(
     private val httpClient: HttpClient,
     private val json: Json,
+    private val deviceUidProvider: DeviceUidProvider,
     dispatcher: CoroutineDispatcher
 ) : SignalingService {
     private var session: WebSocketSession? = null
     private var action: ((SignalingMessage) -> Unit)? = null
     private val scope = CoroutineScope(dispatcher)
 
-    override suspend fun connect() {
+    override fun connect() {
         scope.launch {
-            session = httpClient.webSocketSession("ws://127.0.0.1:8080")
+            session = httpClient.webSocketSession {
+                header("uid", deviceUidProvider.getDeviceId())
+                url {
+                    protocol = URLProtocol.WS
+                    url("ws://192.168.100.91:8080/signaling")
+                }
+            }
             handleFrames()
         }
     }

@@ -28,7 +28,7 @@ object SignalingMapper {
         return SignalingIceCandidate(
             sdpMid = candidate.sdpMid ?: "",
             sdpMLineIndex = candidate.sdpMLineIndex,
-            candidate = candidate.sdp
+            candidate = candidate.sdp,
         )
     }
 
