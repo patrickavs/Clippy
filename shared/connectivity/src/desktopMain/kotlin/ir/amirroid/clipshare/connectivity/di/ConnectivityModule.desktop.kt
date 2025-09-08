@@ -10,6 +10,7 @@ import ir.amirroid.clipshare.connectivity.discovery.DeviceDiscoveryService
 import ir.amirroid.clipshare.connectivity.p2p.DesktopWebRtcPeerToPeerConnectionImpl
 import ir.amirroid.clipshare.connectivity.p2p.PeerToPeerConnectionService
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 
@@ -19,5 +20,5 @@ actual fun Module.configureModule() {
     singleOf(::DesktopDeviceBroadcastServiceImpl).bind<DeviceBroadcastService>()
 
     single { PeerConnectionFactory() }
-    singleOf(::DesktopWebRtcPeerToPeerConnectionImpl).bind<PeerToPeerConnectionService>()
+    factoryOf(::DesktopWebRtcPeerToPeerConnectionImpl).bind<PeerToPeerConnectionService>()
 }

@@ -11,6 +11,7 @@ import ir.amirroid.clipshare.connectivity.p2p.AndroidWebRtcPeerToPeerConnectionI
 import ir.amirroid.clipshare.connectivity.p2p.PeerToPeerConnectionService
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
+import org.koin.core.module.dsl.factoryOf
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
 import org.webrtc.PeerConnectionFactory
@@ -21,7 +22,7 @@ actual fun Module.configureModule() {
     singleOf(::AndroidDeviceDiscoveryServiceImpl).bind<DeviceDiscoveryService>()
     singleOf(::AndroidDeviceBroadcastServiceImpl).bind<DeviceBroadcastService>()
     single { createPeerConnectionFactory(androidContext()) }
-    singleOf(::AndroidWebRtcPeerToPeerConnectionImpl).bind<PeerToPeerConnectionService>()
+    factoryOf(::AndroidWebRtcPeerToPeerConnectionImpl).bind<PeerToPeerConnectionService>()
 }
 
 private fun createPeerConnectionFactory(context: Context): PeerConnectionFactory {
