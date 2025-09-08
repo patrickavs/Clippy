@@ -21,6 +21,8 @@ class ConnectionRegistryImpl(
     override fun addConnection(deviceId: String, connection: PeerToPeerConnectionService) {
         scope.launch {
             connections[deviceId] = connection
+
+
             connection.connectionStatus.collect { updateStatus(deviceId, it) }
         }
     }

@@ -13,9 +13,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.rounded.DesktopMac
 import androidx.compose.material.icons.rounded.DesktopWindows
-import androidx.compose.material.icons.rounded.Phone
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PhoneIphone
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -66,6 +64,7 @@ fun DevicesScreen(
     viewModel: DevicesViewModel = koinViewModel()
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
+    val connectedDevices by viewModel.connectedDevices.collectAsStateWithLifecycle(emptyMap())
     val columnsCount = rememberColumnCount()
 
     DisposableEffect(Unit) {
@@ -95,7 +94,15 @@ fun DevicesScreen(
                     modifier = Modifier.weight(1f).animateItem(),
                     expandedByDefault = true
                 ) {
-
+                    Column {
+                        connectedDevices.forEach { (id, status) ->
+                            AppListItem(
+                                headlineContent = {
+                                    AppText("$id $status")
+                                }
+                            )
+                        }
+                    }
                 }
             }
             item("nearby_devices") {

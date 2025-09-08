@@ -2,6 +2,7 @@ package ir.amirroid.clipshare.devices
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import ir.amirroid.clipshare.connectivity.connection.ConnectionRegistry
 import ir.amirroid.clipshare.connectivity.sync.SyncService
 import ir.amirroid.clipshare.domain.usecase.device.GetIsStartedBroadcastingUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetNearByDevicesUseCase
@@ -27,11 +28,14 @@ class DevicesViewModel(
     private val stopDiscoveringDevicesUseCase: StopDiscoveringDevicesUseCase,
     private val startBroadcastingDevicesUseCase: StartBroadcastingDevicesUseCase,
     private val stopBroadcastingDevicesUseCase: StopBroadcastingDevicesUseCase,
+    private val connectionRegistry: ConnectionRegistry,
     private val syncService: SyncService,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
     private val _screenState = MutableStateFlow(DevicesScreenState())
     val screenState = _screenState.asStateFlow()
+
+    val connectedDevices = connectionRegistry.allConnectionStatus
 
     init {
         collectNearbyDevices()
