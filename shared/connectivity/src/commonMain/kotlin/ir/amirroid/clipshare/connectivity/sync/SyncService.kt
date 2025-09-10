@@ -1,7 +1,8 @@
 package ir.amirroid.clipshare.connectivity.sync
 
 interface SyncService {
-    suspend fun start()
+    var isStarted: Boolean
+    fun start()
     suspend fun call(targetDeviceId: String)
     fun close()
 }

@@ -9,6 +9,7 @@ kotlin {
         commonMain.dependencies {
             implementation(projects.shared.clipboard)
             implementation(projects.shared.storage)
+            implementation(projects.shared.connectivity)
             implementation(projects.core.database)
         }
     }

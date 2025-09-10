@@ -10,6 +10,7 @@ import ir.amirroid.clipshare.connectivity.signaling.SignalingService
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
+import kotlinx.coroutines.cancel
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 
@@ -21,10 +22,14 @@ class SyncServiceImpl(
 ) : SyncService, KoinComponent {
 
     private val scope = CoroutineScope(SupervisorJob() + dispatcher)
+    override var isStarted = false
 
-    override suspend fun start() {
-        signalingService.connect()
-        handleSignalingEvents()
+    override fun start() {
+        scope.launch {
+            signalingService.connect()
+            isStarted = true
+            handleSignalingEvents()
+        }
     }
 
     private fun handleSignalingEvents() {
@@ -32,11 +37,11 @@ class SyncServiceImpl(
             scope.launch {
                 when (message.type) {
                     SignalingMessageType.OFFER -> {
-                        val conn =
+                        val connection =
                             connectionRegistry.getConnection(message.from) ?: createConnection(
                                 message.from
                             )
-                        val answer = conn.handleOffer(message)
+                        val answer = connection.handleOffer(message)
                         signalingService.sendMessage(answer)
                     }
 
@@ -45,7 +50,10 @@ class SyncServiceImpl(
                     }
 
                     SignalingMessageType.ICE_CANDIDATE -> {
-                        connectionRegistry.getConnection(message.from)?.handleIceCandidate(message)
+                        runCatching {
+                            connectionRegistry.getConnection(message.from)
+                                ?.handleIceCandidate(message)
+                        }.onFailure { it.printStackTrace() }
                     }
                 }
             }
@@ -91,5 +99,7 @@ class SyncServiceImpl(
     override fun close() {
         connectionRegistry.allConnections().forEach { it.close() }
         signalingService.close()
+        scope.cancel()
+        isStarted = false
     }
 }

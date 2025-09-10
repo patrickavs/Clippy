@@ -37,6 +37,7 @@ class ConnectionRegistryImpl(
     }
 
     override fun allConnections(): List<PeerToPeerConnectionService> = connections.values.toList()
+    override fun allConnectionDevices(): List<String> = connections.keys.toList()
 
     private fun updateStatus(deviceId: String, status: ConnectionStatus) {
         _statusFlow.value = _statusFlow.value + (deviceId to status)

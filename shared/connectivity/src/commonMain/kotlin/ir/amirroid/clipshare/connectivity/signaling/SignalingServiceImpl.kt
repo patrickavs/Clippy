@@ -33,7 +33,7 @@ class SignalingServiceImpl(
                 header("uid", deviceUidProvider.getDeviceId())
                 url {
                     protocol = URLProtocol.WS
-                    url("ws://192.168.100.91:8080/signaling")
+                    url("ws://192.168.227.150:8080/signaling")
                 }
             }
             handleFrames()

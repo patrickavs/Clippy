@@ -10,5 +10,6 @@ interface ConnectionRegistry {
     fun getConnection(deviceId: String): PeerToPeerConnectionService?
     fun removeConnection(deviceId: String)
     fun allConnections(): List<PeerToPeerConnectionService>
+    fun allConnectionDevices(): List<String>
     fun close()
 }
