@@ -1,4 +1,4 @@
-package ir.amirroid.clipshare.domain.models
+package ir.amirroid.clipshare.domain.models.clipboard
 
 import kotlinx.datetime.LocalDateTime
 

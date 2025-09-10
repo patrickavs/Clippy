@@ -38,25 +38,12 @@ import ir.amirroid.clipshare.design_system.components.AppListItem
 import ir.amirroid.clipshare.design_system.components.AppText
 import ir.amirroid.clipshare.design_system.components.AppTopAppBar
 import ir.amirroid.clipshare.design_system.components.ExpandableSection
-import ir.amirroid.clipshare.domain.models.DevicePlatform
-import ir.amirroid.clipshare.ui_models.device.DiscoveredDeviceUiModel
+import ir.amirroid.clipshare.domain.models.utils.DevicePlatform
+import ir.amirroid.clipshare.ui_models.connected_device.ConnectedDeviceUiModel
+import ir.amirroid.clipshare.ui_models.device.DeviceUiModel
 import kotlinx.collections.immutable.ImmutableList
 import org.koin.compose.viewmodel.koinViewModel
 
-
-@Composable
-fun rememberColumnCount(): Int {
-    val windowSize = LocalWindowInfo.current
-    val density = LocalDensity.current
-    val widthDp = with(density) { windowSize.containerSize.width.toDp().value }
-
-    return calculateColumns(widthDp)
-}
-
-fun calculateColumns(widthDp: Float): Int = when {
-    widthDp >= 800 -> 2
-    else -> 1
-}
 
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -64,7 +51,6 @@ fun DevicesScreen(
     viewModel: DevicesViewModel = koinViewModel()
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
-    val connectedDevices by viewModel.connectedDevices.collectAsStateWithLifecycle(emptyMap())
     val columnsCount = rememberColumnCount()
 
     DisposableEffect(Unit) {
@@ -94,15 +80,7 @@ fun DevicesScreen(
                     modifier = Modifier.weight(1f).animateItem(),
                     expandedByDefault = true
                 ) {
-                    Column {
-                        connectedDevices.forEach { (id, status) ->
-                            AppListItem(
-                                headlineContent = {
-                                    AppText("$id $status")
-                                }
-                            )
-                        }
-                    }
+                    ConnectedDevicesList(screenState.connectedDevices)
                 }
             }
             item("nearby_devices") {
@@ -202,8 +180,8 @@ private fun BroadcastStatus(
 
 @Composable
 private fun DevicesList(
-    devices: ImmutableList<DiscoveredDeviceUiModel>,
-    onConnect: (DiscoveredDeviceUiModel) -> Unit
+    devices: ImmutableList<DeviceUiModel>,
+    onConnect: (DeviceUiModel) -> Unit
 ) {
     Column(modifier = Modifier.animateContentSize().fillMaxWidth()) {
         devices.forEach { device ->
@@ -215,35 +193,79 @@ private fun DevicesList(
 }
 
 @Composable
-fun DeviceItem(device: DiscoveredDeviceUiModel, onConnect: () -> Unit) {
+fun DeviceItem(device: DeviceUiModel, onConnect: () -> Unit) {
     AppListItem(headlineContent = {
         AppText(device.name)
     }, leadingContent = {
-        when (device.platform) {
-            DevicePlatform.ANDROID -> {
-                Icon(
-                    Icons.Rounded.PhoneAndroid,
-                    contentDescription = null
-                )
-            }
-
-            DevicePlatform.IOS -> {
-                Icon(
-                    Icons.Rounded.PhoneIphone,
-                    contentDescription = null
-                )
-            }
-
-            DevicePlatform.DESKTOP -> {
-                Icon(
-                    Icons.Rounded.DesktopWindows,
-                    contentDescription = null
-                )
-            }
-        }
+        PlatformIcon(device.platform)
     }, trailingContent = {
         AppButton(onClick = onConnect) {
             Text("Connect")
         }
     })
+}
+
+@Composable
+private fun ConnectedDevicesList(
+    devices: ImmutableList<ConnectedDeviceUiModel>,
+) {
+    Column(modifier = Modifier.animateContentSize().fillMaxWidth()) {
+        devices.forEach { connectedDevice ->
+            key(connectedDevice.device.id) {
+                ConnectedDeviceItem(connectedDevice)
+            }
+        }
+    }
+}
+
+@Composable
+fun ConnectedDeviceItem(connectedDevice: ConnectedDeviceUiModel) {
+    AppListItem(headlineContent = {
+        AppText(connectedDevice.device.name)
+    }, leadingContent = {
+        PlatformIcon(connectedDevice.device.platform)
+    }, trailingContent = {
+        Text(connectedDevice.connectionStatus.name)
+    })
+}
+
+@Composable
+private fun PlatformIcon(platform: DevicePlatform) {
+    when (platform) {
+        DevicePlatform.ANDROID -> {
+            Icon(
+                Icons.Rounded.PhoneAndroid,
+                contentDescription = null
+            )
+        }
+
+        DevicePlatform.IOS -> {
+            Icon(
+                Icons.Rounded.PhoneIphone,
+                contentDescription = null
+            )
+        }
+
+        DevicePlatform.DESKTOP -> {
+            Icon(
+                Icons.Rounded.DesktopWindows,
+                contentDescription = null
+            )
+        }
+    }
+}
+
+
+@Composable
+fun rememberColumnCount(): Int {
+    val windowSize = LocalWindowInfo.current
+    val density = LocalDensity.current
+    val widthDp = with(density) { windowSize.containerSize.width.toDp().value }
+
+    return calculateColumns(widthDp)
+}
+
+fun calculateColumns(widthDp: Float): Int = when {
+    widthDp >= 800 -> 2
+    else -> 1
 }

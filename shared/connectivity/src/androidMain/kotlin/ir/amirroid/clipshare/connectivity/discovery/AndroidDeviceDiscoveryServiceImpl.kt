@@ -78,7 +78,7 @@ class AndroidDeviceDiscoveryServiceImpl(
 
         if (device.requestType == RequestType.ADD) {
             val current = _incoming.value.toMutableList()
-            val index = current.indexOfFirst { it.ip == device.ip }
+            val index = current.indexOfFirst { it.deviceId == device.deviceId }
             if (index >= 0) current[index] = device else current.add(device)
             _incoming.update { current }
         } else {

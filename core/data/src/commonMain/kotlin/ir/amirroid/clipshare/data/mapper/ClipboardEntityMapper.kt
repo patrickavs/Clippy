@@ -4,7 +4,7 @@ import ir.amirroid.clipshare.clipboard.models.HtmlWithPlainText
 import ir.amirroid.clipshare.common.app.extensions.fromSeconds
 import ir.amirroid.clipshare.database.entity.ClipboardEntity
 import ir.amirroid.clipshare.database.entity.ClipboardType
-import ir.amirroid.clipshare.domain.models.ClipboardContentDomain
+import ir.amirroid.clipshare.domain.models.clipboard.ClipboardContentDomain
 import kotlinx.serialization.json.Json
 
 fun ClipboardEntity.toDomain(json: Json): ClipboardContentDomain {

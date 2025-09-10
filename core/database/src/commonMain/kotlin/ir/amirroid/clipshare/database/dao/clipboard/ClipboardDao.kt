@@ -1,4 +1,4 @@
-package ir.amirroid.clipshare.database.dao
+package ir.amirroid.clipshare.database.dao.clipboard
 
 import ir.amirroid.clipshare.database.entity.ClipboardEntity
 import ir.amirroid.clipshare.database.entity.ClipboardType

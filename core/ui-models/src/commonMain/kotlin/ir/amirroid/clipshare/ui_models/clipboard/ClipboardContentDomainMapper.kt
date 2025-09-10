@@ -1,7 +1,7 @@
 package ir.amirroid.clipshare.ui_models.clipboard
 
 import androidx.compose.ui.text.AnnotatedString
-import ir.amirroid.clipshare.domain.models.ClipboardContentDomain
+import ir.amirroid.clipshare.domain.models.clipboard.ClipboardContentDomain
 
 fun ClipboardContentDomain.toUiModel(): ClipboardContentUiModel = when (this) {
     is ClipboardContentDomain.Text -> ClipboardContentUiModel.Text(value, id, createdAt)

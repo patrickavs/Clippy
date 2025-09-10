@@ -1,0 +1,16 @@
+CREATE TABLE DiscoveredDeviceEntries (
+    deviceId TEXT NOT NULL PRIMARY KEY,
+    name TEXT NOT NULL,
+    platform TEXT NOT NULL
+);
+
+insertDevice:
+INSERT OR REPLACE INTO DiscoveredDeviceEntries(deviceId, name, platform)
+VALUES (?, ?, ?);
+
+deleteDeviceById:
+DELETE FROM DiscoveredDeviceEntries
+WHERE deviceId = ?;
+
+getAllDevices:
+SELECT * FROM DiscoveredDeviceEntries;

@@ -2,7 +2,7 @@ package ir.amirroid.clipshare.process.service
 
 import ir.amirroid.clipshare.clipboard.manager.ClipboardManager
 import ir.amirroid.clipshare.clipboard.models.ClipboardContent
-import ir.amirroid.clipshare.database.dao.ClipboardDao
+import ir.amirroid.clipshare.database.dao.clipboard.ClipboardDao
 import ir.amirroid.clipshare.database.entity.ClipboardType
 import ir.amirroid.clipshare.storage.PlatformStorage
 import kotlinx.coroutines.CoroutineDispatcher

@@ -1,4 +1,4 @@
-package ir.amirroid.clipshare.database.dao
+package ir.amirroid.clipshare.database.dao.clipboard
 
 import app.cash.sqldelight.coroutines.asFlow
 import app.cash.sqldelight.coroutines.mapToList

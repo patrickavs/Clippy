@@ -1,6 +1,6 @@
 package ir.amirroid.clipshare.domain.repository.clipboard
 
-import ir.amirroid.clipshare.domain.models.ClipboardContentDomain
+import ir.amirroid.clipshare.domain.models.clipboard.ClipboardContentDomain
 import kotlinx.coroutines.flow.Flow
 
 interface ClipboardRepository {
