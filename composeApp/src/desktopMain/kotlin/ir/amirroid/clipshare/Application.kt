@@ -9,7 +9,9 @@ object Application : KoinComponent {
     private val processor: ClipboardProcessorService by inject()
 
     fun start() {
-        DependencyInjection.configure()
+        DependencyInjection.configure {
+            modules(appModule)
+        }
 
         processor.start()
     }

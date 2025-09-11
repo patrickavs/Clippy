@@ -3,6 +3,8 @@ package ir.amirroid.clipshare.data.repository.devices
 import ir.amirroid.clipshare.connectivity.broadcast.DeviceBroadcastService
 import ir.amirroid.clipshare.connectivity.connection.ConnectionRegistry
 import ir.amirroid.clipshare.connectivity.discovery.DeviceDiscoveryService
+import ir.amirroid.clipshare.connectivity.pending.PendingConnectionManager
+import ir.amirroid.clipshare.connectivity.sync.SyncService
 import ir.amirroid.clipshare.data.mapper.toDomain
 import ir.amirroid.clipshare.data.mapper.toEntity
 import ir.amirroid.clipshare.database.dao.device.DeviceDao
@@ -18,7 +20,9 @@ class DevicesRepositoryImpl(
     private val discoveryService: DeviceDiscoveryService,
     private val broadcastService: DeviceBroadcastService,
     private val deviceDao: DeviceDao,
-    private val connectionRegistry: ConnectionRegistry
+    private val connectionRegistry: ConnectionRegistry,
+    private val pendingConnectionManager: PendingConnectionManager,
+    private val syncService: SyncService
 ) : DevicesRepository {
     override val nearbyDevices = discoveryService.incoming.map { devices ->
         devices.map { it.toDomain() }
@@ -64,5 +68,21 @@ class DevicesRepositoryImpl(
                 )
             }
         }
+    }
+
+    override fun getPendingConnectionDevices(): Flow<List<Device>> {
+        return pendingConnectionManager.pendingConnections.map { devices ->
+            devices.map { it.toDomain() }
+        }
+    }
+
+    override suspend fun acceptPendingDevice(targetDeviceId: String) {
+        pendingConnectionManager.getMessage(targetDeviceId)?.sender?.toDomain()?.toEntity()
+            ?.also { deviceDao.addNewDevice(it) }
+        syncService.acceptConnection(targetDeviceId)
+    }
+
+    override suspend fun rejectPendingDevice(targetDeviceId: String) {
+        syncService.rejectConnection(targetDeviceId)
     }
 }

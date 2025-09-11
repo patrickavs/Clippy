@@ -7,4 +7,5 @@ interface DeviceDao {
     fun getAllDiscoveredDevices(): Flow<List<DeviceEntity>>
     suspend fun addNewDevice(device: DeviceEntity)
     suspend fun removeDevice(deviceId: String)
+    suspend fun checkExistsDeviceById(deviceId: String): Boolean
 }

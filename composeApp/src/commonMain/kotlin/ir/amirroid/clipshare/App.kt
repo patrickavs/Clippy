@@ -13,11 +13,15 @@ import ir.amirroid.clipshare.common.app.models.NotificationRequest
 import ir.amirroid.clipshare.design_system.theme.ClipShareTheme
 import ir.amirroid.clipshare.navigation.MainNavigation
 import kotlinx.coroutines.launch
+import org.koin.compose.viewmodel.koinViewModel
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
-fun App() {
+fun App(
+    viewModel: MainViewModel = koinViewModel()
+) {
     val snakeState = rememberSnackbarHostState()
+
 
     ClipShareTheme {
         Scaffold(
@@ -28,6 +32,7 @@ fun App() {
             }
         ) {
             MainNavigation()
+            PendingConnectionsDialogs(viewModel)
         }
     }
 }

@@ -16,6 +16,8 @@ kotlin {
             implementation(projects.core.di)
             implementation(projects.core.navigation)
             implementation(projects.core.process)
+            implementation(projects.core.uiModels)
+            implementation(projects.core.domain)
 
             // Shared
             implementation(projects.shared.connectivity)

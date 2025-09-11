@@ -5,10 +5,13 @@ import ir.amirroid.clipshare.domain.usecase.clipboard.DeleteClipboardItemUseCase
 import ir.amirroid.clipshare.domain.usecase.clipboard.GetClipboardHistoryUseCase
 import ir.amirroid.clipshare.domain.usecase.clipboard.SetClipboardContentUseCase
 import ir.amirroid.clipshare.domain.usecase.clipboard.SetOneFileClipboardUseCase
+import ir.amirroid.clipshare.domain.usecase.device.AcceptPendingConnectionUseCase
 import ir.amirroid.clipshare.domain.usecase.device.AddDeviceToConnectedDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetConnectedDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetIsStartedBroadcastingUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetNearByDevicesUseCase
+import ir.amirroid.clipshare.domain.usecase.device.GetPendingConnectionsUseCase
+import ir.amirroid.clipshare.domain.usecase.device.RejectPendingConnectionUseCase
 import ir.amirroid.clipshare.domain.usecase.device.RemoveDeviceFromConnectedDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.StartBroadcastingDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.StartDiscoveringDevicesUseCase
@@ -32,4 +35,7 @@ val useCaseModule = module {
     factoryOf(::GetConnectedDevicesUseCase)
     factoryOf(::AddDeviceToConnectedDevicesUseCase)
     factoryOf(::RemoveDeviceFromConnectedDevicesUseCase)
+    factoryOf(::RejectPendingConnectionUseCase)
+    factoryOf(::GetPendingConnectionsUseCase)
+    factoryOf(::AcceptPendingConnectionUseCase)
 }

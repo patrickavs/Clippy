@@ -29,4 +29,8 @@ class DeviceDaoImpl(
     override suspend fun removeDevice(deviceId: String) {
         discoveredDeviceQueries.deleteDeviceById(deviceId = deviceId).await()
     }
+
+    override suspend fun checkExistsDeviceById(deviceId: String): Boolean {
+        return discoveredDeviceQueries.existsDeviceById(deviceId).executeAsOne()
+    }
 }

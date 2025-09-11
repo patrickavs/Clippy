@@ -36,6 +36,10 @@ class ConnectionRegistryImpl(
         _statusFlow.value = _statusFlow.value - deviceId
     }
 
+    override fun hasOutgoingOffer(deviceId: String): Boolean {
+        return connections.containsKey(deviceId)
+    }
+
     override fun allConnections(): List<PeerToPeerConnectionService> = connections.values.toList()
     override fun allConnectionDevices(): List<String> = connections.keys.toList()
 

@@ -77,7 +77,7 @@ fun DevicesScreen(
             item("devices") {
                 ExpandableSection(
                     title = "Connected Devices",
-                    modifier = Modifier.weight(1f).animateItem(),
+                    modifier = Modifier.animateItem().weight(1f),
                     expandedByDefault = true
                 ) {
                     ConnectedDevicesList(screenState.connectedDevices)
@@ -87,7 +87,7 @@ fun DevicesScreen(
                 ExpandableSection(
                     title = "Nearby Devices",
                     icons = { LoadingIndicator(modifier = Modifier.size(40.dp)) },
-                    modifier = Modifier.weight(1f).animateItem(),
+                    modifier = Modifier.animateItem().weight(1f),
                     expandedByDefault = true
                 ) {
                     DevicesList(screenState.nearbyDevices, onConnect = viewModel::connectToDevice)
@@ -96,7 +96,7 @@ fun DevicesScreen(
             item("broadcast_devices") {
                 ExpandableSection(
                     title = "Make My Device Discoverable",
-                    modifier = Modifier.weight(1f).animateItem(),
+                    modifier = Modifier.animateItem().weight(1f),
                     expandedByDefault = true
                 ) {
                     Column(

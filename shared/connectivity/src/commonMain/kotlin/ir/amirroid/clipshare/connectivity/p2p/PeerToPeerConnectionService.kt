@@ -16,8 +16,4 @@ interface PeerToPeerConnectionService {
     fun onIceCandidate(callback: (SignalingIceCandidate) -> Unit)
     fun onMessageReceived(action: (String) -> Unit)
     fun close()
-
-    companion object {
-        const val DATA_CHANNEL_LABEL = "dataChannel"
-    }
 }

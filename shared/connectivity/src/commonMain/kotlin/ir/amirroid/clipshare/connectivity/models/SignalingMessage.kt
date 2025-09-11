@@ -8,13 +8,16 @@ data class SignalingMessage(
     val from: String,
     val to: String,
     val sdp: SignalingSdp? = null,
-    val candidate: SignalingIceCandidate? = null
+    val candidate: SignalingIceCandidate? = null,
+    val sender: DeviceInfo
 )
+
 
 enum class SignalingMessageType {
     OFFER,
     ANSWER,
-    ICE_CANDIDATE
+    ICE_CANDIDATE,
+    REJECT
 }
 
 @Serializable

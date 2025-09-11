@@ -5,6 +5,7 @@ import ir.amirroid.clipshare.connectivity.models.ConnectionStatus
 import ir.amirroid.clipshare.connectivity.models.SignalingIceCandidate
 import ir.amirroid.clipshare.connectivity.models.SignalingMessage
 import ir.amirroid.clipshare.connectivity.models.SignalingMessageType
+import ir.amirroid.clipshare.connectivity.provider.DeviceInfoProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.suspendCancellableCoroutine
@@ -21,11 +22,13 @@ import kotlin.coroutines.resumeWithException
 
 class AndroidWebRtcPeerToPeerConnectionImpl(
     private val peerConnectionFactory: PeerConnectionFactory,
-    private val deviceUidProvider: DeviceUidProvider
+    private val deviceUidProvider: DeviceUidProvider,
+    private val deviceInfoProvider: DeviceInfoProvider
 ) : PeerToPeerConnectionService {
 
     private var peerConnection: PeerConnection? = null
-    private var dataChannel: DataChannel? = null
+    private var receiverDataChannel: DataChannel? = null
+    private var senderDataChannel: DataChannel? = null
     private val _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     override val connectionStatus: StateFlow<ConnectionStatus> = _connectionStatus
     private var messageCallback: ((String) -> Unit)? = null
@@ -40,7 +43,8 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
             type = SignalingMessageType.OFFER,
             from = deviceUidProvider.getDeviceId(),
             to = targetDeviceId,
-            sdp = signalingSdp
+            sdp = signalingSdp,
+            sender = deviceInfoProvider.getDeviceInfo()
         )
     }
 
@@ -49,7 +53,7 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
         val remoteSdp = SignalingMapper.toWebRtcSdp(
             message.sdp ?: throw IllegalArgumentException("Missing SDP")
         )
-        pc.setRemoteDescription(SimpleSdpObserver(), remoteSdp)
+        pc.awaitSetRemoteDescription(remoteSdp)
         ensureDataChannel(pc)
         val sdp = pc.createSdp(MediaConstraints(), false)
         val signalingSdp = SignalingMapper.fromWebRtcSdp(sdp)
@@ -57,16 +61,30 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
             type = SignalingMessageType.ANSWER,
             from = deviceUidProvider.getDeviceId(),
             to = message.from,
-            sdp = signalingSdp
+            sdp = signalingSdp,
+            sender = deviceInfoProvider.getDeviceInfo()
         )
     }
+
+    private suspend fun PeerConnection.awaitSetRemoteDescription(sdp: SessionDescription) =
+        suspendCancellableCoroutine { cont ->
+            setRemoteDescription(object : SimpleSdpObserver() {
+                override fun onSetSuccess() {
+                    cont.resume(Unit) {}
+                }
+
+                override fun onSetFailure(error: String?) {
+                    cont.resumeWithException(RuntimeException(error))
+                }
+            }, sdp)
+        }
 
     override suspend fun handleAnswer(message: SignalingMessage) {
         val pc = peerConnection ?: throw IllegalStateException("PeerConnection not initialized")
         val remoteSdp = SignalingMapper.toWebRtcSdp(
             message.sdp ?: throw IllegalArgumentException("Missing SDP")
         )
-        pc.setRemoteDescription(SimpleSdpObserver(), remoteSdp)
+        pc.awaitSetRemoteDescription(remoteSdp)
     }
 
     override suspend fun handleIceCandidate(message: SignalingMessage) {
@@ -82,7 +100,7 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
     }
 
     override suspend fun sendMessage(message: String) {
-        dataChannel?.let { dc ->
+        senderDataChannel?.let { dc ->
             val buffer =
                 DataChannel.Buffer(ByteBuffer.wrap(message.toByteArray(Charsets.UTF_8)), false)
             if (dc.state() == DataChannel.State.OPEN) dc.send(buffer)
@@ -91,12 +109,14 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
 
     override fun onMessageReceived(action: (String) -> Unit) {
         messageCallback = action
-        dataChannel?.let { registerDataChannelObserver() }
+        receiverDataChannel?.let { registerDataChannelObserver(true) }
     }
 
     override fun close() {
-        dataChannel?.close()
-        dataChannel = null
+        senderDataChannel?.close()
+        receiverDataChannel?.close()
+        senderDataChannel = null
+        receiverDataChannel = null
         peerConnection?.close()
         peerConnection = null
         _connectionStatus.value = ConnectionStatus.DISCONNECTED
@@ -108,12 +128,13 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
     }
 
     private fun ensureDataChannel(pc: PeerConnection) {
-        if (dataChannel == null) {
+        if (senderDataChannel == null) {
             val init = DataChannel.Init()
-            dataChannel = pc.createDataChannel(PeerToPeerConnectionService.DATA_CHANNEL_LABEL, init)
-            registerDataChannelObserver()
+            senderDataChannel = pc.createDataChannel(deviceUidProvider.getDeviceId(), init)
+            registerDataChannelObserver(false)
         }
     }
+
 
     private suspend fun PeerConnection.createSdp(
         constraints: MediaConstraints,
@@ -123,8 +144,15 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
             val observer = object : SimpleSdpObserver() {
                 override fun onCreateSuccess(sdp: SessionDescription?) {
                     if (sdp == null) return
-                    setLocalDescription(SimpleSdpObserver(), sdp)
-                    continuation.resume(sdp) {}
+                    setLocalDescription(object : SimpleSdpObserver() {
+                        override fun onSetSuccess() {
+                            continuation.resume(sdp) {}
+                        }
+
+                        override fun onSetFailure(error: String?) {
+                            continuation.resumeWithException(RuntimeException("Failed to set local description: $error"))
+                        }
+                    }, sdp)
                 }
 
                 override fun onCreateFailure(error: String?) {
@@ -148,8 +176,8 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
                 }
 
                 override fun onDataChannel(dc: DataChannel) {
-                    dataChannel = dc
-                    registerDataChannelObserver()
+                    receiverDataChannel = dc
+                    registerDataChannelObserver(true)
                 }
 
                 override fun onConnectionChange(newState: PeerConnection.PeerConnectionState?) {
@@ -175,15 +203,20 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
         ) ?: throw IllegalStateException("Failed to build PeerConnection")
     }
 
-    private fun registerDataChannelObserver() {
+    private fun registerDataChannelObserver(isReceiver: Boolean) {
+        val dataChannel = if (isReceiver) {
+            receiverDataChannel
+        } else senderDataChannel
         dataChannel?.registerObserver(object : DataChannel.Observer {
             override fun onStateChange() {
-                updateConnectionStatus()
+                updateConnectionStatus(isReceiver)
             }
 
             override fun onMessage(buffer: DataChannel.Buffer) {
-                val text = buffer.data.decodeString()
-                messageCallback?.invoke(text)
+                if (isReceiver) {
+                    val text = buffer.data.decodeString()
+                    messageCallback?.invoke(text)
+                }
             }
 
             override fun onBufferedAmountChange(p0: Long) {}
@@ -196,7 +229,8 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
         return String(bytes, Charsets.UTF_8)
     }
 
-    private fun updateConnectionStatus() {
+    private fun updateConnectionStatus(isReceiver: Boolean = true) {
+        val dataChannel = if (isReceiver) receiverDataChannel else senderDataChannel
         val status = when {
             peerConnection == null -> ConnectionStatus.DISCONNECTED
             peerConnection?.iceConnectionState() == PeerConnection.IceConnectionState.CONNECTED &&

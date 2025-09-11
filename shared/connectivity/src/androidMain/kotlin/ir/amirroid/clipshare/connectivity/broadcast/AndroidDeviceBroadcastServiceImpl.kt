@@ -1,11 +1,11 @@
 package ir.amirroid.clipshare.connectivity.broadcast
 
-import android.os.Build
 import ir.amirroid.clipshare.common.app.utils.Constants
 import ir.amirroid.clipshare.connectivity.device.DeviceUidProvider
 import ir.amirroid.clipshare.connectivity.models.DiscoveredDevice
 import ir.amirroid.clipshare.connectivity.models.DiscoveredPlatform
 import ir.amirroid.clipshare.connectivity.models.RequestType
+import ir.amirroid.clipshare.connectivity.utils.getDeviceName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -65,7 +65,7 @@ class AndroidDeviceBroadcastServiceImpl(
     }
 
     private fun buildDeviceInfo(type: RequestType): DiscoveredDevice {
-        val deviceName = "${Build.MANUFACTURER} ${Build.MODEL}"
+        val deviceName = getDeviceName()
         return DiscoveredDevice(
             name = deviceName,
             platform = DiscoveredPlatform.ANDROID,

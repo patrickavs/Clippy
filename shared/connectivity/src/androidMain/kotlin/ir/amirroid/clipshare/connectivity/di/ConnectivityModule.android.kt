@@ -9,6 +9,8 @@ import ir.amirroid.clipshare.connectivity.discovery.AndroidDeviceDiscoveryServic
 import ir.amirroid.clipshare.connectivity.discovery.DeviceDiscoveryService
 import ir.amirroid.clipshare.connectivity.p2p.AndroidWebRtcPeerToPeerConnectionImpl
 import ir.amirroid.clipshare.connectivity.p2p.PeerToPeerConnectionService
+import ir.amirroid.clipshare.connectivity.provider.AndroidDeviceInfoProvider
+import ir.amirroid.clipshare.connectivity.provider.DeviceInfoProvider
 import org.koin.android.ext.koin.androidContext
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.factoryOf
@@ -18,6 +20,7 @@ import org.webrtc.PeerConnectionFactory
 import org.webrtc.PeerConnectionFactory.InitializationOptions
 
 actual fun Module.configureModule() {
+    singleOf(::AndroidDeviceInfoProvider).bind<DeviceInfoProvider>()
     singleOf(::AndroidDeviceUidProviderImpl).bind<DeviceUidProvider>()
     singleOf(::AndroidDeviceDiscoveryServiceImpl).bind<DeviceDiscoveryService>()
     singleOf(::AndroidDeviceBroadcastServiceImpl).bind<DeviceBroadcastService>()

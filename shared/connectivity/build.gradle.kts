@@ -20,6 +20,7 @@ kotlin {
         }
         commonMain.dependencies {
             implementation(projects.shared.network)
+            implementation(projects.core.database)
         }
     }
 }

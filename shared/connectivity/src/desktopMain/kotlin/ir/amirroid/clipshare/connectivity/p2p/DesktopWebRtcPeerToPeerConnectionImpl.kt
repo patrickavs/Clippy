@@ -9,6 +9,7 @@ import dev.onvoid.webrtc.media.MediaStream
 import io.ktor.util.decodeString
 import ir.amirroid.clipshare.connectivity.models.ConnectionStatus
 import ir.amirroid.clipshare.connectivity.models.SignalingIceCandidate
+import ir.amirroid.clipshare.connectivity.provider.DesktopDeviceInfoProvider
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import java.nio.ByteBuffer
@@ -18,10 +19,12 @@ import kotlin.coroutines.resumeWithException
 class DesktopWebRtcPeerToPeerConnectionImpl(
     private val peerConnectionFactory: PeerConnectionFactory,
     private val deviceUidProvider: DeviceUidProvider,
+    private val deviceInfoProvider: DesktopDeviceInfoProvider
 ) : PeerToPeerConnectionService {
 
     private var peerConnection: RTCPeerConnection? = null
-    private var dataChannel: RTCDataChannel? = null
+    private var senderDataChannel: RTCDataChannel? = null
+    private var receiverDataChannel: RTCDataChannel? = null
     private val _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     override val connectionStatus: StateFlow<ConnectionStatus> = _connectionStatus
     private var messageCallback: ((String) -> Unit)? = null
@@ -36,7 +39,8 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
             type = SignalingMessageType.OFFER,
             from = deviceUidProvider.getDeviceId(),
             to = targetDeviceId,
-            sdp = signalingSdp
+            sdp = signalingSdp,
+            sender = deviceInfoProvider.getDeviceInfo()
         )
     }
 
@@ -45,7 +49,7 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
         val remoteSdp = SignalingMapper.toWebRtcSdp(
             message.sdp ?: throw IllegalArgumentException("Missing SDP")
         )
-        pc.setRemoteDescription(remoteSdp, SimpleSdpObserver())
+        pc.awaitSetRemoteDescription(remoteSdp)
         ensureDataChannel(pc)
         val sdp = pc.createSdp(false)
         val signalingSdp = SignalingMapper.fromWebRtcSdp(sdp)
@@ -53,7 +57,8 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
             type = SignalingMessageType.ANSWER,
             from = deviceUidProvider.getDeviceId(),
             to = message.from,
-            sdp = signalingSdp
+            sdp = signalingSdp,
+            sender = deviceInfoProvider.getDeviceInfo()
         )
     }
 
@@ -75,8 +80,8 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
 
     override suspend fun sendMessage(message: String) {
         val buffer = RTCDataChannelBuffer(ByteBuffer.wrap(message.encodeToByteArray()), false)
-        if (dataChannel?.state == RTCDataChannelState.OPEN) {
-            dataChannel?.send(buffer)
+        if (senderDataChannel?.state == RTCDataChannelState.OPEN) {
+            senderDataChannel?.send(buffer)
         }
     }
 
@@ -86,12 +91,14 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
 
     override fun onMessageReceived(action: (String) -> Unit) {
         messageCallback = action
-        dataChannel?.let { registerDataChannelObserver() }
+        receiverDataChannel?.let { registerDataChannelObserver(true) }
     }
 
     override fun close() {
-        dataChannel?.close()
-        dataChannel = null
+        senderDataChannel?.close()
+        receiverDataChannel?.close()
+        senderDataChannel = null
+        receiverDataChannel = null
         peerConnection?.close()
         peerConnection = null
         _connectionStatus.value = ConnectionStatus.DISCONNECTED
@@ -113,8 +120,8 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
                     }
 
                     override fun onDataChannel(dc: RTCDataChannel) {
-                        dataChannel = dc
-                        registerDataChannelObserver()
+                        receiverDataChannel = dc
+                        registerDataChannelObserver(true)
                     }
 
                     override fun onConnectionChange(newState: RTCPeerConnectionState) {
@@ -143,28 +150,31 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
     }
 
     private fun ensureDataChannel(pc: RTCPeerConnection) {
-        if (dataChannel == null) {
+        if (senderDataChannel == null) {
             val init = RTCDataChannelInit()
-            dataChannel = pc.createDataChannel(PeerToPeerConnectionService.DATA_CHANNEL_LABEL, init)
-            registerDataChannelObserver()
+            senderDataChannel = pc.createDataChannel(deviceUidProvider.getDeviceId(), init)
+            registerDataChannelObserver(false)
         }
     }
 
-    private fun registerDataChannelObserver() {
+    private fun registerDataChannelObserver(isReceiver: Boolean) {
+        val dataChannel = if (isReceiver) receiverDataChannel else senderDataChannel
         dataChannel?.registerObserver(object : RTCDataChannelObserver {
             override fun onMessage(buffer: RTCDataChannelBuffer) {
+                if (isReceiver.not()) return
                 val text = buffer.data.decodeString()
                 messageCallback?.invoke(text)
             }
 
             override fun onBufferedAmountChange(previousAmount: Long) {}
             override fun onStateChange() {
-                updateConnectionStatus()
+                updateConnectionStatus(isReceiver)
             }
         })
     }
 
-    private fun updateConnectionStatus() {
+    private fun updateConnectionStatus(isReceiver: Boolean = true) {
+        val dataChannel = if (isReceiver) receiverDataChannel else senderDataChannel
         val status = when {
             peerConnection == null -> ConnectionStatus.DISCONNECTED
             peerConnection?.iceConnectionState == RTCIceConnectionState.CONNECTED &&
@@ -182,8 +192,16 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
         suspendCancellableCoroutine { cont ->
             val observer = object : CreateSessionDescriptionObserver {
                 override fun onSuccess(description: RTCSessionDescription) {
-                    setLocalDescription(description, SimpleSdpObserver())
-                    cont.resume(description)
+                    setLocalDescription(description, object : SetSessionDescriptionObserver {
+                        override fun onSuccess() {
+                            cont.resume(description)
+                        }
+
+                        override fun onFailure(error: String?) {
+                            cont.resumeWithException(RuntimeException("Failed to set local description: $error"))
+                        }
+
+                    })
                 }
 
                 override fun onFailure(error: String) {
@@ -199,4 +217,30 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
         get(bytes)
         return String(bytes, Charsets.UTF_8)
     }
+
+    private suspend fun RTCPeerConnection.awaitSetLocalDescription(sdp: RTCSessionDescription) =
+        suspendCancellableCoroutine { cont ->
+            setLocalDescription(sdp, object : SetSessionDescriptionObserver {
+                override fun onSuccess() {
+                    cont.resume(Unit) {}
+                }
+
+                override fun onFailure(error: String?) {
+                    cont.resumeWithException(RuntimeException("Failed to set local description: $error"))
+                }
+            })
+        }
+
+    private suspend fun RTCPeerConnection.awaitSetRemoteDescription(sdp: RTCSessionDescription) =
+        suspendCancellableCoroutine { cont ->
+            setRemoteDescription(sdp, object : SetSessionDescriptionObserver {
+                override fun onSuccess() {
+                    cont.resume(Unit) {}
+                }
+
+                override fun onFailure(error: String?) {
+                    cont.resumeWithException(RuntimeException("Failed to set remote description: $error"))
+                }
+            })
+        }
 }

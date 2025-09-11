@@ -14,3 +14,9 @@ WHERE deviceId = ?;
 
 getAllDevices:
 SELECT * FROM DiscoveredDeviceEntries;
+
+
+existsDeviceById:
+SELECT EXISTS(
+    SELECT 1 FROM DiscoveredDeviceEntries WHERE deviceId = ?
+);

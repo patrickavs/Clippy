@@ -5,6 +5,7 @@ import ir.amirroid.clipshare.connectivity.device.DeviceUidProvider
 import ir.amirroid.clipshare.connectivity.models.DiscoveredDevice
 import ir.amirroid.clipshare.connectivity.models.DiscoveredPlatform
 import ir.amirroid.clipshare.connectivity.models.RequestType
+import ir.amirroid.clipshare.connectivity.utils.getDeviceName
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -64,11 +65,7 @@ class DesktopDeviceBroadcastServiceImpl(
     }
 
     private fun buildDeviceInfo(type: RequestType): DiscoveredDevice {
-        val osName = System.getProperty("os.name")
-        val osVersion = System.getProperty("os.version")
-        val userName = System.getProperty("user.name")
-
-        val deviceName = "$userName@$osName $osVersion"
+        val deviceName = getDeviceName()
 
         return DiscoveredDevice(
             name = deviceName,
