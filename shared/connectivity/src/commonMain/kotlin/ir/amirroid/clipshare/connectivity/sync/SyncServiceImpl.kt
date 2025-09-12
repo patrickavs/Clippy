@@ -50,6 +50,10 @@ class SyncServiceImpl(
                         deviceDao.removeDevice(message.from)
                     }
 
+                    SignalingMessageType.ANNOUNCE_ONLINE -> {
+                        call(message.from)
+                    }
+
                     SignalingMessageType.OFFER -> {
                         handleIncomingOffer(message)
                     }
@@ -134,8 +138,6 @@ class SyncServiceImpl(
     }
 
     override suspend fun call(targetDeviceId: String) {
-        Logger.withTag("SYNC_SERVICE").d { "Call $targetDeviceId" }
-
         if (connectionRegistry.hasOutgoingOffer(targetDeviceId)) return
 
         val connection =
@@ -156,6 +158,10 @@ class SyncServiceImpl(
         pendingConnectionManager.removePending(targetDeviceId)
         message ?: return
         sendConnectionMessage(targetDeviceId, SignalingMessageType.REJECT, sdp = message.sdp)
+    }
+
+    override suspend fun announceOnline(targetDeviceId: String) {
+        sendConnectionMessage(targetDeviceId, SignalingMessageType.ANNOUNCE_ONLINE)
     }
 
     override fun close() {

@@ -22,7 +22,10 @@ object ApplicationUi {
     @Composable
     private fun ApplicationScope.startWindow(content: @Composable () -> Unit) {
         Window(
-            onCloseRequest = ::exitApplication,
+            onCloseRequest = {
+                Application.close()
+                exitApplication()
+            },
             title = "ClipShare",
             state = rememberWindowState(
                 size = DpSize(600.dp, 500.dp),

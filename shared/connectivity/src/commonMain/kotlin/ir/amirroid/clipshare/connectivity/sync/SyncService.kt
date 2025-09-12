@@ -6,5 +6,6 @@ interface SyncService {
     suspend fun call(targetDeviceId: String)
     suspend fun acceptConnection(targetDeviceId: String)
     suspend fun rejectConnection(targetDeviceId: String)
+    suspend fun announceOnline(targetDeviceId: String)
     fun close()
 }

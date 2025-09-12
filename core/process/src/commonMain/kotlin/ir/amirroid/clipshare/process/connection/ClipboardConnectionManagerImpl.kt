@@ -1,6 +1,5 @@
 package ir.amirroid.clipshare.process.connection
 
-import co.touchlab.kermit.Logger
 import ir.amirroid.clipshare.clipboard.manager.ClipboardManager
 import ir.amirroid.clipshare.clipboard.models.ClipboardContent
 import ir.amirroid.clipshare.clipboard.models.ClipboardContentRequest
@@ -8,7 +7,7 @@ import ir.amirroid.clipshare.clipboard.models.ClipboardContentType
 import ir.amirroid.clipshare.connectivity.connection.ConnectionRegistry
 import ir.amirroid.clipshare.connectivity.models.ConnectionStatus
 import ir.amirroid.clipshare.connectivity.p2p.PeerToPeerConnectionService
-import ir.amirroid.clipshare.connectivity.signaling.SignalingServiceImpl
+import ir.amirroid.clipshare.connectivity.signaling.SignalingService
 import ir.amirroid.clipshare.connectivity.sync.SyncService
 import ir.amirroid.clipshare.database.dao.clipboard.ClipboardDao
 import ir.amirroid.clipshare.database.dao.device.DeviceDao
@@ -31,7 +30,7 @@ import kotlinx.serialization.json.Json
 class ClipboardConnectionManagerImpl(
     private val deviceDao: DeviceDao,
     private val syncService: SyncService,
-    private val signalingServiceImpl: SignalingServiceImpl,
+    private val signalingService: SignalingService,
     private val connectionRegistry: ConnectionRegistry,
     private val storage: PlatformStorage,
     private val json: Json,
@@ -44,7 +43,7 @@ class ClipboardConnectionManagerImpl(
 
     override fun start() {
         if (syncService.isStarted.not()) syncService.start()
-        signalingServiceImpl.onConnected {
+        signalingService.onConnected {
             scope.launch {
                 launch { handleDevicesFromDatabase() }
                 launch { observeIncomingMessages() }
@@ -56,6 +55,10 @@ class ClipboardConnectionManagerImpl(
         deviceDao.getAllDiscoveredDevices().collect { devices ->
             val currentAllConnectedDevices = connectionRegistry.allConnectionDevices()
             val devicesIds = devices.map { it.id }
+
+            devices.filter { it.id !in currentAllConnectedDevices && !it.isHost }.forEach {
+                syncService.announceOnline(it.id)
+            }
 
             devices.filter { it.id !in currentAllConnectedDevices && it.isHost }.forEach {
                 syncService.call(it.id)

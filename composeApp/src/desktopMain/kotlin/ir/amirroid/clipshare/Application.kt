@@ -15,4 +15,8 @@ object Application : KoinComponent {
 
         processor.start()
     }
+
+    fun close() {
+        processor.dispose()
+    }
 }

@@ -1,6 +1,5 @@
 package ir.amirroid.clipshare.process.service
 
-import co.touchlab.kermit.Logger
 import ir.amirroid.clipshare.clipboard.manager.ClipboardManager
 import ir.amirroid.clipshare.clipboard.models.ClipboardContent
 import ir.amirroid.clipshare.database.dao.clipboard.ClipboardDao

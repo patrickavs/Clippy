@@ -17,6 +17,7 @@ enum class SignalingMessageType {
     OFFER,
     ANSWER,
     ICE_CANDIDATE,
+    ANNOUNCE_ONLINE,
     REJECT
 }
 
