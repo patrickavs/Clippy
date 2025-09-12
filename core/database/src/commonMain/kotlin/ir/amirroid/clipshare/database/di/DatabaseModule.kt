@@ -6,6 +6,8 @@ import ir.amirroid.clipshare.database.dao.clipboard.ClipboardDao
 import ir.amirroid.clipshare.database.dao.clipboard.ClipboardDaoImpl
 import ir.amirroid.clipshare.database.dao.device.DeviceDao
 import ir.amirroid.clipshare.database.dao.device.DeviceDaoImpl
+import ir.amirroid.clipshare.database.dao.sync_status.SyncStatusDao
+import ir.amirroid.clipshare.database.dao.sync_status.SyncStatusDaoImpl
 import org.koin.core.module.Module
 import org.koin.core.module.dsl.singleOf
 import org.koin.dsl.bind
@@ -20,6 +22,8 @@ val databaseModule = module {
     }
     single { get<AppDatabase>().clipboardQueries }
     single { get<AppDatabase>().discovered_deviceQueries }
+    single { get<AppDatabase>().clipboard_sync_statusQueries }
     singleOf(::ClipboardDaoImpl).bind<ClipboardDao>()
     singleOf(::DeviceDaoImpl).bind<DeviceDao>()
+    singleOf(::SyncStatusDaoImpl).bind<SyncStatusDao>()
 }

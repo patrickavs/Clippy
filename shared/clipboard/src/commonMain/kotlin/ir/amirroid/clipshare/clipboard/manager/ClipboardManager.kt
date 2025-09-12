@@ -5,6 +5,11 @@ import ir.amirroid.clipshare.clipboard.models.ClipboardContentRequest
 
 interface ClipboardManager {
     fun addOnChangedListener(action: (ClipboardContent) -> Unit)
-    suspend fun setContent(request: ClipboardContentRequest)
+    suspend fun setContent(
+        request: ClipboardContentRequest,
+        withMessage: Boolean = true,
+        withSaveLastItem: Boolean = false
+    )
+
     fun dispose()
 }

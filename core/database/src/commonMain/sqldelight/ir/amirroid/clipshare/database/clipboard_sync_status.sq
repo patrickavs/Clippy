@@ -1,0 +1,23 @@
+CREATE TABLE ClipboardSyncStatusEntry (
+    clipboardId INTEGER NOT NULL,
+    deviceId TEXT NOT NULL,
+    createdAt INTEGER NOT NULL DEFAULT (strftime('%s','now')),
+    PRIMARY KEY (clipboardId, deviceId),
+    FOREIGN KEY (clipboardId) REFERENCES ClipboardEntries(id) ON DELETE CASCADE,
+    FOREIGN KEY (deviceId) REFERENCES DiscoveredDeviceEntries(deviceId) ON DELETE CASCADE
+);
+
+insertSyncStatus:
+INSERT OR IGNORE INTO ClipboardSyncStatusEntry(clipboardId, deviceId)
+VALUES (?, ?);
+
+getUnsyncedEntriesForDevice:
+SELECT ce.*
+FROM ClipboardEntries ce
+WHERE (ce.originDeviceId IS NULL OR ce.originDeviceId != ?)
+  AND NOT EXISTS (
+    SELECT 1
+    FROM ClipboardSyncStatusEntry csse
+    WHERE csse.clipboardId = ce.id
+      AND csse.deviceId = ?
+);

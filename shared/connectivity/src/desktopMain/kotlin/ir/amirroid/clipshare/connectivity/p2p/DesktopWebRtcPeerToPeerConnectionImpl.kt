@@ -6,8 +6,9 @@ import ir.amirroid.clipshare.connectivity.models.SignalingMessageType
 import kotlinx.coroutines.suspendCancellableCoroutine
 import dev.onvoid.webrtc.*
 import dev.onvoid.webrtc.media.MediaStream
-import io.ktor.util.decodeString
+import io.ktor.util.moveToByteArray
 import ir.amirroid.clipshare.connectivity.models.ConnectionStatus
+import ir.amirroid.clipshare.connectivity.models.DataChannelBuffer
 import ir.amirroid.clipshare.connectivity.models.SignalingIceCandidate
 import ir.amirroid.clipshare.connectivity.provider.DesktopDeviceInfoProvider
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -27,7 +28,7 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
     private var receiverDataChannel: RTCDataChannel? = null
     private val _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     override val connectionStatus: StateFlow<ConnectionStatus> = _connectionStatus
-    private var messageCallback: ((String) -> Unit)? = null
+    private var messageCallback: ((DataChannelBuffer) -> Unit)? = null
     private var iceCandidateCallback: ((SignalingIceCandidate) -> Unit)? = null
 
     override suspend fun createOffer(targetDeviceId: String): SignalingMessage {
@@ -79,8 +80,15 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
     }
 
     override suspend fun sendMessage(message: String) {
-        val buffer = RTCDataChannelBuffer(ByteBuffer.wrap(message.encodeToByteArray()), false)
         if (senderDataChannel?.state == RTCDataChannelState.OPEN) {
+            val buffer = RTCDataChannelBuffer(ByteBuffer.wrap(message.encodeToByteArray()), false)
+            senderDataChannel?.send(buffer)
+        }
+    }
+
+    override suspend fun sendMessage(bytes: ByteArray) {
+        if (senderDataChannel?.state == RTCDataChannelState.OPEN) {
+            val buffer = RTCDataChannelBuffer(ByteBuffer.wrap(bytes), true)
             senderDataChannel?.send(buffer)
         }
     }
@@ -89,7 +97,7 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
         iceCandidateCallback = callback
     }
 
-    override fun onMessageReceived(action: (String) -> Unit) {
+    override fun onMessageReceived(action: (DataChannelBuffer) -> Unit) {
         messageCallback = action
         receiverDataChannel?.let { registerDataChannelObserver(true) }
     }
@@ -162,8 +170,12 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
         dataChannel?.registerObserver(object : RTCDataChannelObserver {
             override fun onMessage(buffer: RTCDataChannelBuffer) {
                 if (isReceiver.not()) return
-                val text = buffer.data.decodeString()
-                messageCallback?.invoke(text)
+                messageCallback?.invoke(
+                    DataChannelBuffer(
+                        data = buffer.data.moveToByteArray(),
+                        binary = buffer.binary
+                    )
+                )
             }
 
             override fun onBufferedAmountChange(previousAmount: Long) {}

@@ -1,10 +1,13 @@
 package ir.amirroid.clipshare.process.service
 
+import co.touchlab.kermit.Logger
 import ir.amirroid.clipshare.clipboard.manager.ClipboardManager
 import ir.amirroid.clipshare.clipboard.models.ClipboardContent
 import ir.amirroid.clipshare.database.dao.clipboard.ClipboardDao
 import ir.amirroid.clipshare.database.entity.ClipboardType
-import ir.amirroid.clipshare.process.connection.ConnectionManager
+import ir.amirroid.clipshare.process.connection.ClipboardConnectionManager
+import ir.amirroid.clipshare.process.handler.ClipboardHandler
+import ir.amirroid.clipshare.process.tracker.ClipboardSyncTracker
 import ir.amirroid.clipshare.storage.PlatformStorage
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
@@ -16,27 +19,29 @@ class ClipboardProcessorServiceImpl(
     private val clipboardManager: ClipboardManager,
     private val clipboardDao: ClipboardDao,
     private val storage: PlatformStorage,
-    private val connectionManager: ConnectionManager,
+    private val clipboardConnectionManager: ClipboardConnectionManager,
+    private val clipboardSyncTracker: ClipboardSyncTracker,
     private val json: Json,
     dispatcher: CoroutineDispatcher
-) : ClipboardProcessorService {
+) : ClipboardProcessorService, ClipboardHandler {
     val job = SupervisorJob()
     private val scope = CoroutineScope(dispatcher + job)
+    private val clipboardHandlers = listOf(
+        this, clipboardConnectionManager
+    )
 
     override fun start() {
         clipboardManager.addOnChangedListener { content ->
-            scope.launch {
-                val request = createAddRequestFromContent(content)
-                clipboardDao.insert(request.type, request.data)
-            }
+            clipboardHandlers.forEach { handler -> handler.handle(content) }
         }
-        connectionManager.start()
+        clipboardConnectionManager.start()
     }
 
     override fun dispose() {
         clipboardManager.dispose()
-        connectionManager.close()
+        clipboardConnectionManager.close()
         job.cancel()
+        clipboardSyncTracker.clear()
     }
 
     private suspend fun createAddRequestFromContent(content: ClipboardContent): AddRequest {
@@ -62,6 +67,13 @@ class ClipboardProcessorServiceImpl(
                 storage.saveToCache(content.bytes, "png"),
                 ClipboardType.IMAGE
             )
+        }
+    }
+
+    override fun handle(content: ClipboardContent) {
+        scope.launch {
+            val request = createAddRequestFromContent(content)
+            clipboardDao.insert(request.type, request.data)
         }
     }
 

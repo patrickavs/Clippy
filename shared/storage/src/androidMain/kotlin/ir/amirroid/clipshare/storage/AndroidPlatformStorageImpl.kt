@@ -13,11 +13,35 @@ class AndroidPlatformStorageImpl(
         return file.path
     }
 
+    override suspend fun saveToCacheWithFileName(
+        bytes: ByteArray,
+        fileName: String
+    ): String {
+        val file = context.filesDir.resolve(fileName)
+        file.writeBytes(bytes)
+        return file.path
+    }
+
     override suspend fun deleteFile(path: String) {
         File(path).delete()
     }
 
     override suspend fun deleteAllCacheFiles() {
         context.filesDir.listFiles()?.forEach { it.delete() }
+    }
+
+    override fun getFileInfo(path: String): FileInfo {
+        val file = File(path)
+        return FileInfo(
+            name = file.name,
+            exists = file.exists(),
+            isDirectory = file.isDirectory,
+            length = file.length()
+        )
+    }
+
+    override suspend fun readBytes(path: String): ByteArray {
+        val file = File(path)
+        return file.readBytes()
     }
 }

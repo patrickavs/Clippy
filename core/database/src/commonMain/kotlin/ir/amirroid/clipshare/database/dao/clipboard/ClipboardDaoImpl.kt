@@ -25,11 +25,8 @@ class ClipboardDaoImpl(
         return clipboardQueries.getById(id).executeAsOne().toEntity()
     }
 
-    override suspend fun insert(
-        type: ClipboardType,
-        data: String
-    ) {
-        clipboardQueries.insertEntry(type.name, data).await()
+    override suspend fun insert(type: ClipboardType, data: String, originDeviceId: String?): Long {
+        return clipboardQueries.insertEntry(type.name, data, originDeviceId).await()
     }
 
     override suspend fun delete(id: Long) {

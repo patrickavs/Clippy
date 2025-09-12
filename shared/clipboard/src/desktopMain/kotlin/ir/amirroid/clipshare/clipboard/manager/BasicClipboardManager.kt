@@ -17,6 +17,7 @@ abstract class BasicClipboardManager(
 ) : ClipboardManager, ClipboardOwner {
     protected var job: Job? = null
     protected val scope = CoroutineScope(Dispatchers.Default)
+    protected var lastContent: ClipboardContent? = null
 
     protected val systemClipboard: Clipboard by lazy { Toolkit.getDefaultToolkit().systemClipboard }
 
@@ -27,9 +28,14 @@ abstract class BasicClipboardManager(
         }.getOrNull()
     }
 
-    override suspend fun setContent(request: ClipboardContentRequest) {
-        val transferable = contentRequestConverter.fromRequest(request)
+    override suspend fun setContent(
+        request: ClipboardContentRequest,
+        withMessage: Boolean,
+        withSaveLastItem: Boolean
+    ) {
+        val transferable = contentRequestConverter.fromRequest(request, withMessage)
         systemClipboard.setContents(transferable, this)
+        if (withSaveLastItem) lastContent = readClipboard()
     }
 
     override fun lostOwnership(clipboard: Clipboard, contents: Transferable) {

@@ -11,6 +11,8 @@ actual fun Module.configureDriver() {
         NativeSqliteDriver(
             schema = AppDatabase.Schema,
             name = Constants.DB_NAME
-        )
+        ).apply {
+            execute(null, "PRAGMA foreign_keys=ON;", 0)
+        }
     }
 }

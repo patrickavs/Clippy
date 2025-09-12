@@ -16,17 +16,22 @@ import java.io.File
 
 abstract class BasicClipboardManager(private val context: Context, private val json: Json) :
     ClipboardManager {
+    protected var lastContent: ClipboardContent? = null
     protected val clipboardManager: android.content.ClipboardManager by lazy {
         context.getSystemService(android.content.ClipboardManager::class.java)
     }
 
-    override suspend fun setContent(request: ClipboardContentRequest) {
+    override suspend fun setContent(
+        request: ClipboardContentRequest,
+        withMessage: Boolean,
+        withSaveLastItem: Boolean
+    ) {
         when (request.type) {
             ClipboardContentType.TEXT -> {
                 val text = request.data
                 val clip = ClipData.newPlainText("text", text)
                 clipboardManager.setPrimaryClip(clip)
-                EventBus.publish(NotificationRequest("Text Copied"))
+                if (withMessage) EventBus.publish(NotificationRequest("Text Copied"))
             }
 
             ClipboardContentType.HTML -> {
@@ -38,32 +43,35 @@ abstract class BasicClipboardManager(private val context: Context, private val j
                     item
                 )
                 clipboardManager.setPrimaryClip(clip)
-                EventBus.publish(NotificationRequest("Rich Text Copied"))
+                if (withMessage) EventBus.publish(NotificationRequest("Rich Text Copied"))
             }
 
             ClipboardContentType.RTF -> {
                 val item = ClipData.Item(request.data)
                 val clip = ClipData("rtf", arrayOf("text/rtf"), item)
                 clipboardManager.setPrimaryClip(clip)
-                EventBus.publish(NotificationRequest("Rich Text Copied"))
+                if (withMessage) EventBus.publish(NotificationRequest("Rich Text Copied"))
             }
 
             ClipboardContentType.FILES -> {
                 val uris = json.decodeFromString<List<String>>(request.data)
                 copyFiles(uris)
 
-                if (uris.size == 1) {
-                    EventBus.publish(NotificationRequest("File Copied"))
-                } else {
-                    EventBus.publish(NotificationRequest("${uris.size} Files Copied"))
+                if (withMessage) {
+                    if (uris.size == 1) {
+                        EventBus.publish(NotificationRequest("File Copied"))
+                    } else {
+                        EventBus.publish(NotificationRequest("${uris.size} Files Copied"))
+                    }
                 }
             }
 
             ClipboardContentType.IMAGE -> {
                 copyFiles(listOf(request.data))
-                EventBus.publish(NotificationRequest("Image Copied"))
+                if (withMessage) EventBus.publish(NotificationRequest("Image Copied"))
             }
         }
+        if (withSaveLastItem) lastContent = getClipboardContent()
     }
 
     private fun copyFiles(paths: List<String>) {

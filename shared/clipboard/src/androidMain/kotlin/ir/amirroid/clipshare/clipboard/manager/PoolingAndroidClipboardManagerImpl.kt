@@ -25,8 +25,6 @@ class PoolingAndroidClipboardManagerImpl(
     context: Context,
     json: Json
 ) : BasicClipboardManager(context, json) {
-    private var lastContent: ClipboardContent? = null
-
     private var job: Job? = null
     private val scope = CoroutineScope(Dispatchers.Default)
 

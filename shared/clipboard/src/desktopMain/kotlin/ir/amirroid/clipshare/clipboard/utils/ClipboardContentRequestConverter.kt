@@ -12,11 +12,11 @@ import java.awt.datatransfer.Transferable
 import java.awt.datatransfer.UnsupportedFlavorException
 
 class ClipboardContentRequestConverter(private val json: Json) {
-    suspend fun fromRequest(request: ClipboardContentRequest): Transferable? {
+    suspend fun fromRequest(request: ClipboardContentRequest, withMessage: Boolean): Transferable? {
         return when (request.type) {
             ClipboardContentType.TEXT -> {
                 StringSelection(request.data).also {
-                    EventBus.publish(NotificationRequest("Text Copied"))
+                    if (withMessage) EventBus.publish(NotificationRequest("Text Copied"))
                 }
             }
 
@@ -24,7 +24,7 @@ class ClipboardContentRequestConverter(private val json: Json) {
                 createTransferable(DataFlavor.imageFlavor) {
                     javax.imageio.ImageIO.read(java.io.File(request.data))
                 }.also {
-                    EventBus.publish(NotificationRequest("Image Copied"))
+                    if (withMessage) EventBus.publish(NotificationRequest("Image Copied"))
                 }
             }
 
@@ -34,10 +34,12 @@ class ClipboardContentRequestConverter(private val json: Json) {
                 createTransferable(DataFlavor.javaFileListFlavor) {
                     files.map { java.io.File(it.trim()) }
                 }.also {
-                    if (files.size == 1) {
-                        EventBus.publish(NotificationRequest("File Copied"))
-                    } else {
-                        EventBus.publish(NotificationRequest("${files.size} Files Copied"))
+                    if (withMessage) {
+                        if (files.size == 1) {
+                            EventBus.publish(NotificationRequest("File Copied"))
+                        } else {
+                            EventBus.publish(NotificationRequest("${files.size} Files Copied"))
+                        }
                     }
                 }
             }
@@ -47,7 +49,7 @@ class ClipboardContentRequestConverter(private val json: Json) {
                 createTransferable(arrayOf(DataFlavor.allHtmlFlavor, DataFlavor.stringFlavor)) {
                     if (it == DataFlavor.stringFlavor) htmlWithPlainText.text else htmlWithPlainText.html
                 }.also {
-                    EventBus.publish(NotificationRequest("Rich Text Copied"))
+                    if (withMessage) EventBus.publish(NotificationRequest("Rich Text Copied"))
                 }
             }
 
@@ -55,7 +57,7 @@ class ClipboardContentRequestConverter(private val json: Json) {
                 createTransferable(Flavors.rtfInputStream) {
                     java.io.ByteArrayInputStream(request.data.toByteArray())
                 }.also {
-                    EventBus.publish(NotificationRequest("Rich Text Copied"))
+                    if (withMessage) EventBus.publish(NotificationRequest("Rich Text Copied"))
                 }
             }
         }

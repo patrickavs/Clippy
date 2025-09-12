@@ -10,7 +10,6 @@ class AndroidClipboardManagerImpl(
 ) : BasicClipboardManager(context, json),
     android.content.ClipboardManager.OnPrimaryClipChangedListener {
     private var listener: ((ClipboardContent) -> Unit)? = null
-    private var lastContent: ClipboardContent? = null
 
     override fun addOnChangedListener(action: (ClipboardContent) -> Unit) {
         listener = action

@@ -2,6 +2,7 @@ CREATE TABLE ClipboardEntries (
     id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
     type TEXT NOT NULL,
     data TEXT NOT NULL,
+    originDeviceId TEXT DEFAULT NULL,
     createdAt INTEGER NOT NULL DEFAULT (strftime('%s','now'))
 );
 
@@ -16,8 +17,8 @@ FROM ClipboardEntries
 WHERE id = ?;
 
 insertEntry:
-INSERT INTO ClipboardEntries(type, data)
-VALUES (?, ?);
+INSERT INTO ClipboardEntries(type, data, originDeviceId)
+VALUES (?, ?, ?);
 
 deleteById:
 DELETE FROM ClipboardEntries

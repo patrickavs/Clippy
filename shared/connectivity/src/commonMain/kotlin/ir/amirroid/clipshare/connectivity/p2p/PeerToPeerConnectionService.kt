@@ -1,6 +1,7 @@
 package ir.amirroid.clipshare.connectivity.p2p
 
 import ir.amirroid.clipshare.connectivity.models.ConnectionStatus
+import ir.amirroid.clipshare.connectivity.models.DataChannelBuffer
 import ir.amirroid.clipshare.connectivity.models.SignalingIceCandidate
 import ir.amirroid.clipshare.connectivity.models.SignalingMessage
 import kotlinx.coroutines.flow.StateFlow
@@ -13,7 +14,8 @@ interface PeerToPeerConnectionService {
     suspend fun handleAnswer(message: SignalingMessage)
     suspend fun handleIceCandidate(message: SignalingMessage)
     suspend fun sendMessage(message: String)
+    suspend fun sendMessage(bytes: ByteArray)
     fun onIceCandidate(callback: (SignalingIceCandidate) -> Unit)
-    fun onMessageReceived(action: (String) -> Unit)
+    fun onMessageReceived(action: (DataChannelBuffer) -> Unit)
     fun close()
 }

@@ -1,7 +1,9 @@
 package ir.amirroid.clipshare.connectivity.p2p
 
+import io.ktor.util.moveToByteArray
 import ir.amirroid.clipshare.connectivity.device.DeviceUidProvider
 import ir.amirroid.clipshare.connectivity.models.ConnectionStatus
+import ir.amirroid.clipshare.connectivity.models.DataChannelBuffer
 import ir.amirroid.clipshare.connectivity.models.SignalingIceCandidate
 import ir.amirroid.clipshare.connectivity.models.SignalingMessage
 import ir.amirroid.clipshare.connectivity.models.SignalingMessageType
@@ -31,7 +33,7 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
     private var senderDataChannel: DataChannel? = null
     private val _connectionStatus = MutableStateFlow(ConnectionStatus.DISCONNECTED)
     override val connectionStatus: StateFlow<ConnectionStatus> = _connectionStatus
-    private var messageCallback: ((String) -> Unit)? = null
+    private var messageCallback: ((DataChannelBuffer) -> Unit)? = null
     private var iceCandidateCallback: ((SignalingIceCandidate) -> Unit)? = null
 
     override suspend fun createOffer(targetDeviceId: String): SignalingMessage {
@@ -107,7 +109,14 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
         }
     }
 
-    override fun onMessageReceived(action: (String) -> Unit) {
+    override suspend fun sendMessage(bytes: ByteArray) {
+        senderDataChannel?.let { dc ->
+            val buffer = DataChannel.Buffer(ByteBuffer.wrap(bytes), true)
+            if (dc.state() == DataChannel.State.OPEN) dc.send(buffer)
+        }
+    }
+
+    override fun onMessageReceived(action: (DataChannelBuffer) -> Unit) {
         messageCallback = action
         receiverDataChannel?.let { registerDataChannelObserver(true) }
     }
@@ -213,10 +222,13 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
             }
 
             override fun onMessage(buffer: DataChannel.Buffer) {
-                if (isReceiver) {
-                    val text = buffer.data.decodeString()
-                    messageCallback?.invoke(text)
-                }
+                if (isReceiver.not()) return
+                messageCallback?.invoke(
+                    DataChannelBuffer(
+                        data = buffer.data.moveToByteArray(),
+                        binary = buffer.binary
+                    )
+                )
             }
 
             override fun onBufferedAmountChange(p0: Long) {}
