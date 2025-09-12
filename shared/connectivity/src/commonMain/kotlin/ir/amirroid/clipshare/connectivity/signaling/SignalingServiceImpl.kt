@@ -4,7 +4,6 @@ import co.touchlab.kermit.Logger
 import io.ktor.client.HttpClient
 import io.ktor.client.plugins.websocket.webSocketSession
 import io.ktor.client.request.header
-import io.ktor.client.request.url
 import io.ktor.http.URLProtocol
 import io.ktor.http.path
 import io.ktor.websocket.Frame
@@ -40,7 +39,7 @@ class SignalingServiceImpl(
                         header("uid", deviceUidProvider.getDeviceId())
                         url {
                             protocol = URLProtocol.WS
-                            host = "192.168.105.150"
+                            host = "192.168.1.54"
                             port = 8080
                             path("signaling")
                         }

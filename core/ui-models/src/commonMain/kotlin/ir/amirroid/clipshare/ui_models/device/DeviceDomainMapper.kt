@@ -5,5 +5,6 @@ import ir.amirroid.clipshare.domain.models.device.Device
 fun Device.toUiModel() = DeviceUiModel(
     name = name,
     id = id,
-    platform = platform
+    platform = platform,
+    isHost = isHost
 )

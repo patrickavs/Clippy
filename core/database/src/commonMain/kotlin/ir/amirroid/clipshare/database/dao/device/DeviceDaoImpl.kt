@@ -22,7 +22,10 @@ class DeviceDaoImpl(
 
     override suspend fun addNewDevice(device: DeviceEntity) {
         discoveredDeviceQueries.insertDevice(
-            deviceId = device.id, name = device.name, platform = device.platform.name
+            deviceId = device.id,
+            name = device.name,
+            platform = device.platform.name,
+            isHost = device.isHost
         ).await()
     }
 

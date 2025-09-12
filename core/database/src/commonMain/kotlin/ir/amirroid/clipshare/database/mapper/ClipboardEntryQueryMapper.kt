@@ -8,5 +8,5 @@ fun ClipboardEntries.toEntity() = ClipboardEntity(
     id = id,
     data = data_,
     type = ClipboardType.valueOf(type),
-    createdAt = createdAt
+    createdAt = createdAt,
 )

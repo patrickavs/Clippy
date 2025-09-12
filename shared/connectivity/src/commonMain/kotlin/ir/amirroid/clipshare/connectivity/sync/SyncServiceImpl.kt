@@ -3,7 +3,6 @@ package ir.amirroid.clipshare.connectivity.sync
 import co.touchlab.kermit.Logger
 import ir.amirroid.clipshare.connectivity.connection.ConnectionRegistry
 import ir.amirroid.clipshare.connectivity.device.DeviceUidProvider
-import ir.amirroid.clipshare.connectivity.models.ConnectionStatus
 import ir.amirroid.clipshare.connectivity.models.SignalingIceCandidate
 import ir.amirroid.clipshare.connectivity.models.SignalingMessage
 import ir.amirroid.clipshare.connectivity.models.SignalingMessageType
@@ -17,7 +16,6 @@ import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
-import kotlinx.coroutines.flow.firstOrNull
 import kotlinx.coroutines.launch
 import org.koin.core.component.KoinComponent
 

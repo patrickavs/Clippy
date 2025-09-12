@@ -1,12 +1,15 @@
+import kotlin.Boolean;
+
 CREATE TABLE DiscoveredDeviceEntries (
     deviceId TEXT NOT NULL PRIMARY KEY,
     name TEXT NOT NULL,
-    platform TEXT NOT NULL
+    platform TEXT NOT NULL,
+    isHost INTEGER AS Boolean NOT NULL DEFAULT 0
 );
 
 insertDevice:
-INSERT OR REPLACE INTO DiscoveredDeviceEntries(deviceId, name, platform)
-VALUES (?, ?, ?);
+INSERT OR REPLACE INTO DiscoveredDeviceEntries(deviceId, name, platform, isHost)
+VALUES (?, ?, ?, ?);
 
 deleteDeviceById:
 DELETE FROM DiscoveredDeviceEntries
@@ -14,7 +17,6 @@ WHERE deviceId = ?;
 
 getAllDevices:
 SELECT * FROM DiscoveredDeviceEntries;
-
 
 existsDeviceById:
 SELECT EXISTS(

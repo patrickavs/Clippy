@@ -42,6 +42,7 @@ class ClipboardProcessorServiceImpl(
     private suspend fun createAddRequestFromContent(content: ClipboardContent): AddRequest {
         return when (content) {
             is ClipboardContent.Text -> AddRequest(content.value, ClipboardType.TEXT)
+
             is ClipboardContent.Files -> AddRequest(
                 json.encodeToString(content.paths),
                 ClipboardType.FILES

@@ -7,5 +7,6 @@ import ir.amirroid.clipshare.database.entity.DevicePlatform
 fun DiscoveredDeviceEntries.toEntity() = DeviceEntity(
     id = deviceId,
     platform = DevicePlatform.valueOf(platform),
-    name = name
+    name = name,
+    isHost = isHost
 )

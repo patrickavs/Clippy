@@ -4,7 +4,7 @@ data class ClipboardEntity(
     val id: Long,
     val data: String,
     val type: ClipboardType,
-    val createdAt: Long
+    val createdAt: Long,
 )
 
 enum class ClipboardType {

@@ -7,5 +7,6 @@ import ir.amirroid.clipshare.domain.models.utils.DevicePlatform
 data class DeviceUiModel(
     val name: String,
     val id: String,
-    val platform: DevicePlatform
+    val platform: DevicePlatform,
+    val isHost: Boolean,
 )

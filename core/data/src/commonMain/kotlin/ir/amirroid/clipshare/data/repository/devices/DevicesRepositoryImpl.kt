@@ -78,7 +78,7 @@ class DevicesRepositoryImpl(
 
     override suspend fun acceptPendingDevice(targetDeviceId: String) {
         pendingConnectionManager.getMessage(targetDeviceId)?.sender?.toDomain()?.toEntity()
-            ?.also { deviceDao.addNewDevice(it) }
+            ?.also { deviceDao.addNewDevice(it.copy(isHost = false)) }
         syncService.acceptConnection(targetDeviceId)
     }
 

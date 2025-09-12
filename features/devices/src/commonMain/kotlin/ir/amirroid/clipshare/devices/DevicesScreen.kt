@@ -20,6 +20,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
 import androidx.compose.material3.LoadingIndicator
+import androidx.compose.material3.LocalContentColor
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -28,6 +29,7 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.platform.LocalDensity
 import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextAlign
@@ -38,6 +40,7 @@ import ir.amirroid.clipshare.design_system.components.AppListItem
 import ir.amirroid.clipshare.design_system.components.AppText
 import ir.amirroid.clipshare.design_system.components.AppTopAppBar
 import ir.amirroid.clipshare.design_system.components.ExpandableSection
+import ir.amirroid.clipshare.domain.models.utils.ConnectionStatus
 import ir.amirroid.clipshare.domain.models.utils.DevicePlatform
 import ir.amirroid.clipshare.ui_models.connected_device.ConnectedDeviceUiModel
 import ir.amirroid.clipshare.ui_models.device.DeviceUiModel
@@ -77,7 +80,7 @@ fun DevicesScreen(
             item("devices") {
                 ExpandableSection(
                     title = "Connected Devices",
-                    modifier = Modifier.animateItem().weight(1f),
+                    modifier = Modifier.animateItem().fillMaxWidth(),
                     expandedByDefault = true
                 ) {
                     ConnectedDevicesList(screenState.connectedDevices)
@@ -87,7 +90,7 @@ fun DevicesScreen(
                 ExpandableSection(
                     title = "Nearby Devices",
                     icons = { LoadingIndicator(modifier = Modifier.size(40.dp)) },
-                    modifier = Modifier.animateItem().weight(1f),
+                    modifier = Modifier.animateItem().fillMaxWidth(),
                     expandedByDefault = true
                 ) {
                     DevicesList(screenState.nearbyDevices, onConnect = viewModel::connectToDevice)
@@ -96,7 +99,7 @@ fun DevicesScreen(
             item("broadcast_devices") {
                 ExpandableSection(
                     title = "Make My Device Discoverable",
-                    modifier = Modifier.animateItem().weight(1f),
+                    modifier = Modifier.animateItem().fillMaxWidth(),
                     expandedByDefault = true
                 ) {
                     Column(
@@ -183,10 +186,24 @@ private fun DevicesList(
     devices: ImmutableList<DeviceUiModel>,
     onConnect: (DeviceUiModel) -> Unit
 ) {
-    Column(modifier = Modifier.animateContentSize().fillMaxWidth()) {
-        devices.forEach { device ->
-            key(device.id) {
-                DeviceItem(device, onConnect = { onConnect.invoke(device) })
+    Column(
+        modifier = Modifier
+            .animateContentSize()
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (devices.isEmpty()) {
+            Text(
+                text = "No nearby devices detected",
+                modifier = Modifier.padding(24.dp).fillMaxWidth().alpha(.7f),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+        } else {
+            devices.forEach { device ->
+                key(device.id) {
+                    DeviceItem(device, onConnect = { onConnect.invoke(device) })
+                }
             }
         }
     }
@@ -209,10 +226,24 @@ fun DeviceItem(device: DeviceUiModel, onConnect: () -> Unit) {
 private fun ConnectedDevicesList(
     devices: ImmutableList<ConnectedDeviceUiModel>,
 ) {
-    Column(modifier = Modifier.animateContentSize().fillMaxWidth()) {
-        devices.forEach { connectedDevice ->
-            key(connectedDevice.device.id) {
-                ConnectedDeviceItem(connectedDevice)
+    Column(
+        modifier = Modifier
+            .animateContentSize()
+            .fillMaxWidth(),
+        horizontalAlignment = Alignment.CenterHorizontally
+    ) {
+        if (devices.isEmpty()) {
+            Text(
+                text = "No connected devices",
+                modifier = Modifier.padding(24.dp).fillMaxWidth().alpha(.7f),
+                style = MaterialTheme.typography.bodyMedium,
+                textAlign = TextAlign.Center
+            )
+        } else {
+            devices.forEach { connectedDevice ->
+                key(connectedDevice.device.id) {
+                    ConnectedDeviceItem(connectedDevice)
+                }
             }
         }
     }
@@ -225,8 +256,23 @@ fun ConnectedDeviceItem(connectedDevice: ConnectedDeviceUiModel) {
     }, leadingContent = {
         PlatformIcon(connectedDevice.device.platform)
     }, trailingContent = {
-        Text(connectedDevice.connectionStatus.name)
+        ConnectionStatusText(connectedDevice.connectionStatus)
     })
+}
+
+@Composable
+fun ConnectionStatusText(status: ConnectionStatus) {
+    val color = when (status) {
+        ConnectionStatus.CONNECTED -> MaterialTheme.colorScheme.primary
+        else -> LocalContentColor.current
+    }
+
+    AppText(
+        text = status.name,
+        color = color,
+        style = MaterialTheme.typography.bodySmall,
+        modifier = Modifier.padding(4.dp)
+    )
 }
 
 @Composable

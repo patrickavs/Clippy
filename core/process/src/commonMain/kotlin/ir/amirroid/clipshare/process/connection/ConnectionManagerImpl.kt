@@ -1,6 +1,9 @@
 package ir.amirroid.clipshare.process.connection
 
+import ir.amirroid.clipshare.clipboard.models.ClipboardContentRequest
+import ir.amirroid.clipshare.clipboard.models.ClipboardContentType
 import ir.amirroid.clipshare.connectivity.connection.ConnectionRegistry
+import ir.amirroid.clipshare.connectivity.models.ConnectionStatus
 import ir.amirroid.clipshare.connectivity.signaling.SignalingServiceImpl
 import ir.amirroid.clipshare.connectivity.sync.SyncService
 import ir.amirroid.clipshare.database.dao.device.DeviceDao
@@ -23,7 +26,8 @@ class ConnectionManagerImpl(
         if (syncService.isStarted.not()) syncService.start()
         signalingServiceImpl.onConnected {
             scope.launch {
-                handleDevicesFromDatabase()
+                launch { handleDevicesFromDatabase() }
+                launch { observeIncomingMessages() }
             }
         }
     }
@@ -33,11 +37,24 @@ class ConnectionManagerImpl(
             val currentAllConnectedDevices = connectionRegistry.allConnectionDevices()
             val devicesIds = devices.map { it.id }
 
-            devices.filter { it.id !in currentAllConnectedDevices }.forEach {
+            devices.filter { it.id !in currentAllConnectedDevices && it.isHost }.forEach {
                 syncService.call(it.id)
             }
             currentAllConnectedDevices.filter { it !in devicesIds }.forEach {
                 connectionRegistry.removeConnection(it)
+            }
+        }
+    }
+
+    private suspend fun observeIncomingMessages() {
+        connectionRegistry.allConnectionStatus.collect { connectionStatuses ->
+            connectionStatuses.forEach { (deviceId, status) ->
+                if (status != ConnectionStatus.CONNECTED) return@collect
+                connectionRegistry.getConnection(deviceId)?.also { connection ->
+                    connection.onMessageReceived {
+
+                    }
+                }
             }
         }
     }

@@ -7,5 +7,6 @@ import ir.amirroid.clipshare.domain.models.device.Device
 internal fun Device.toEntity() = DeviceEntity(
     name = name,
     id = id,
-    platform = DevicePlatform.valueOf(platform.name)
+    platform = DevicePlatform.valueOf(platform.name),
+    isHost = isHost
 )

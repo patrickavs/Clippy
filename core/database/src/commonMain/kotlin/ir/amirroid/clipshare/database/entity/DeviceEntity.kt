@@ -7,5 +7,6 @@ enum class DevicePlatform {
 data class DeviceEntity(
     val name: String,
     val id: String,
-    val platform: DevicePlatform
+    val platform: DevicePlatform,
+    val isHost: Boolean
 )
