@@ -84,7 +84,7 @@ class ClipboardConnectionManagerImpl(
         connection: PeerToPeerConnectionService
     ) {
         syncStatusDao.getAllUnsyncedClipboardItems(deviceId)
-            .debounce(500)
+            .debounce(300)
             .collectLatest { entities ->
                 if (entities.isEmpty()) return@collectLatest
 
@@ -110,14 +110,12 @@ class ClipboardConnectionManagerImpl(
 
                 val buffers = paths.mapNotNull {
                     val info = storage.getFileInfo(it)
-                    Logger.withTag("sadassadsa").d { "$info" }
-                    if (!info.exists || info.length > 5 * 1024 * 1024 || info.isDirectory) return@mapNotNull null
+                    if (!info.exists || info.length > MAX_CHUNK_SIZE || info.isDirectory) return@mapNotNull null
                     FileBuffer(
                         fileName = info.name,
                         data = storage.readBytes(it)
                     )
                 }
-                Logger.withTag("sadassadsa").d { "$paths ${buffers.joinToString { it.fileName }}" }
                 ClipboardContentRequest(
                     type = ClipboardContentType.FILES,
                     data = json.encodeToString(buffers),
@@ -126,7 +124,7 @@ class ClipboardConnectionManagerImpl(
 
             ClipboardType.IMAGE -> {
                 val info = storage.getFileInfo(entity.data)
-                if (!info.exists || info.length > 5 * 1024 * 1024) return null
+                if (!info.exists || info.length > MAX_CHUNK_SIZE) return null
                 ClipboardContentRequest(
                     type = ClipboardContentType.IMAGE,
                     data = Base64Wrapper.encodeToString(storage.readBytes(entity.data)),
@@ -194,5 +192,9 @@ class ClipboardConnectionManagerImpl(
 
     override fun handle(content: ClipboardContent) {
         // no-op
+    }
+
+    companion object {
+        const val MAX_CHUNK_SIZE = 100 * 1024 // 100 KB
     }
 }

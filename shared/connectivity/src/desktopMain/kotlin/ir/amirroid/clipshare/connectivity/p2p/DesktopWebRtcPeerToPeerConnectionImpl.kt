@@ -80,17 +80,23 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
     }
 
     override suspend fun sendMessage(message: String) {
-        if (senderDataChannel?.state == RTCDataChannelState.OPEN) {
-            val buffer = RTCDataChannelBuffer(ByteBuffer.wrap(message.encodeToByteArray()), false)
-            senderDataChannel?.send(buffer)
+        val dc = senderDataChannel ?: throw IllegalStateException("RTCDataChannel is null")
+        if (dc.state != RTCDataChannelState.OPEN) {
+            throw IllegalStateException("RTCDataChannel is not open, state=${dc.state}")
         }
+
+        val buffer = RTCDataChannelBuffer(ByteBuffer.wrap(message.encodeToByteArray()), false)
+        dc.send(buffer)
     }
 
     override suspend fun sendMessage(bytes: ByteArray) {
-        if (senderDataChannel?.state == RTCDataChannelState.OPEN) {
-            val buffer = RTCDataChannelBuffer(ByteBuffer.wrap(bytes), true)
-            senderDataChannel?.send(buffer)
+        val dc = senderDataChannel ?: throw IllegalStateException("RTCDataChannel is null")
+        if (dc.state != RTCDataChannelState.OPEN) {
+            throw IllegalStateException("RTCDataChannel is not open, state=${dc.state}")
         }
+
+        val buffer = RTCDataChannelBuffer(ByteBuffer.wrap(bytes), true)
+        dc.send(buffer)
     }
 
     override fun onIceCandidate(callback: (SignalingIceCandidate) -> Unit) {

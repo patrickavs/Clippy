@@ -102,17 +102,24 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
     }
 
     override suspend fun sendMessage(message: String) {
-        senderDataChannel?.let { dc ->
-            val buffer =
-                DataChannel.Buffer(ByteBuffer.wrap(message.toByteArray(Charsets.UTF_8)), false)
-            if (dc.state() == DataChannel.State.OPEN) dc.send(buffer)
+        val dc = senderDataChannel ?: throw IllegalStateException("DataChannel is null")
+        val buffer = DataChannel.Buffer(ByteBuffer.wrap(message.toByteArray(Charsets.UTF_8)), false)
+
+        if (dc.state() == DataChannel.State.OPEN) {
+            dc.send(buffer)
+        } else {
+            throw IllegalStateException("DataChannel is not open, state=${dc.state()}")
         }
     }
 
     override suspend fun sendMessage(bytes: ByteArray) {
-        senderDataChannel?.let { dc ->
-            val buffer = DataChannel.Buffer(ByteBuffer.wrap(bytes), true)
-            if (dc.state() == DataChannel.State.OPEN) dc.send(buffer)
+        val dc = senderDataChannel ?: throw IllegalStateException("DataChannel is null")
+        val buffer = DataChannel.Buffer(ByteBuffer.wrap(bytes), true)
+
+        if (dc.state() == DataChannel.State.OPEN) {
+            dc.send(buffer)
+        } else {
+            throw IllegalStateException("DataChannel is not open, state=${dc.state()}")
         }
     }
 

@@ -35,6 +35,18 @@ compose.desktop {
             packageName = "ir.amirroid.clipshare"
             packageVersion = "1.0.0"
 
+            macOS {
+                iconFile = project.file("icons").resolve("clipshare.icns")
+            }
+
+            windows {
+                iconFile = project.file("icons").resolve("clipshare.jpeg")
+            }
+
+            linux {
+                iconFile = project.file("icons").resolve("clipshare.jpeg")
+            }
+
             jvmArgs("-Dapple.awt.application.appearance=system")
         }
     }
