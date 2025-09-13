@@ -1,7 +1,9 @@
 package ir.amirroid.clipshare.process.di
 
+import ir.amirroid.clipshare.process.chunk.FileChunkManager
 import ir.amirroid.clipshare.process.connection.ClipboardConnectionManager
 import ir.amirroid.clipshare.process.connection.ClipboardConnectionManagerImpl
+import ir.amirroid.clipshare.process.models.FileChunkManagerImpl
 import ir.amirroid.clipshare.process.service.ClipboardProcessorService
 import ir.amirroid.clipshare.process.service.ClipboardProcessorServiceImpl
 import ir.amirroid.clipshare.process.tracker.ClipboardSyncTracker
@@ -11,6 +13,7 @@ import org.koin.dsl.module
 
 val processorModule = module {
     singleOf(::ClipboardSyncTracker)
+    singleOf(::FileChunkManagerImpl).bind<FileChunkManager>()
     singleOf(::ClipboardConnectionManagerImpl).bind<ClipboardConnectionManager>()
     singleOf(::ClipboardProcessorServiceImpl).bind<ClipboardProcessorService>()
 }
