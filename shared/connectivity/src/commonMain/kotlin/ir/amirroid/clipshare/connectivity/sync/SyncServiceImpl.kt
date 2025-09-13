@@ -42,7 +42,6 @@ class SyncServiceImpl(
 
     private fun handleSignalingEvents() {
         signalingService.onMessage { message ->
-            Logger.withTag("SYNC_SERVICE").d { "MESSAGE $message" }
             scope.launch {
                 when (message.type) {
                     SignalingMessageType.REJECT -> {
@@ -154,10 +153,8 @@ class SyncServiceImpl(
     }
 
     override suspend fun rejectConnection(targetDeviceId: String) {
-        val message = pendingConnectionManager.getMessage(targetDeviceId)
         pendingConnectionManager.removePending(targetDeviceId)
-        message ?: return
-        sendConnectionMessage(targetDeviceId, SignalingMessageType.REJECT, sdp = message.sdp)
+        sendConnectionMessage(targetDeviceId, SignalingMessageType.REJECT)
     }
 
     override suspend fun announceOnline(targetDeviceId: String) {

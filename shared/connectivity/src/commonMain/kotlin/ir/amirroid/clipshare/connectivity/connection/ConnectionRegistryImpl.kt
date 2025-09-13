@@ -7,6 +7,9 @@ import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.cancel
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.distinctUntilChanged
+import kotlinx.coroutines.flow.map
+import kotlinx.coroutines.flow.update
 import kotlinx.coroutines.launch
 import kotlin.time.Clock
 import kotlin.time.ExperimentalTime
@@ -31,9 +34,15 @@ class ConnectionRegistryImpl(
         }
     }
 
+    override fun connectionStatusFlow(deviceId: String): Flow<ConnectionStatus> {
+        return _statusFlow
+            .map { it[deviceId] ?: ConnectionStatus.DISCONNECTED }
+            .distinctUntilChanged()
+    }
+
     @OptIn(ExperimentalTime::class)
     override fun hasOutgoingOffer(deviceId: String): Boolean {
-        val connection = connections[deviceId] ?: return false
+        connections[deviceId] ?: return false
         val createdAt = connectionTimes[deviceId] ?: return false
         val now = Clock.System.now().toEpochMilliseconds()
 
@@ -53,7 +62,7 @@ class ConnectionRegistryImpl(
         connections[deviceId]?.close()
         connections.remove(deviceId)
         connectionTimes.remove(deviceId)
-        _statusFlow.value = _statusFlow.value - deviceId
+        _statusFlow.update { it - deviceId }
     }
 
     override fun allConnections(): List<PeerToPeerConnectionService> = connections.values.toList()

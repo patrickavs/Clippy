@@ -39,7 +39,7 @@ class SignalingServiceImpl(
                         header("uid", deviceUidProvider.getDeviceId())
                         url {
                             protocol = URLProtocol.WS
-                            host = "192.168.1.54"
+                            host = "192.168.1.51"
                             port = 8080
                             path("signaling")
                         }

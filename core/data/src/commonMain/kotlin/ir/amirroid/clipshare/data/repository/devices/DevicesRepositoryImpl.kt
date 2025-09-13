@@ -49,8 +49,8 @@ class DevicesRepositoryImpl(
         deviceDao.addNewDevice(device.toEntity())
     }
 
-    override suspend fun disconnectDevice(device: Device) {
-        deviceDao.removeDevice(device.id)
+    override suspend fun disconnectDevice(deviceId: String) {
+        deviceDao.removeDevice(deviceId)
     }
 
     override fun getConnectedDevices(): Flow<List<ConnectedDevice>> {

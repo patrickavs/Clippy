@@ -6,6 +6,7 @@ import ir.amirroid.clipshare.domain.usecase.device.AddDeviceToConnectedDevicesUs
 import ir.amirroid.clipshare.domain.usecase.device.GetConnectedDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetIsStartedBroadcastingUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetNearByDevicesUseCase
+import ir.amirroid.clipshare.domain.usecase.device.RejectPendingConnectionUseCase
 import ir.amirroid.clipshare.domain.usecase.device.RemoveDeviceFromConnectedDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.StartBroadcastingDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.StartDiscoveringDevicesUseCase
@@ -19,7 +20,6 @@ import kotlinx.collections.immutable.toImmutableList
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharingStarted
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
@@ -35,6 +35,7 @@ class DevicesViewModel(
     private val stopBroadcastingDevicesUseCase: StopBroadcastingDevicesUseCase,
     private val addDeviceToConnectedDevicesUseCase: AddDeviceToConnectedDevicesUseCase,
     private val removeDeviceFromConnectedDevicesUseCase: RemoveDeviceFromConnectedDevicesUseCase,
+    private val rejectPendingConnectionUseCase: RejectPendingConnectionUseCase,
     private val getConnectedDevicesUseCase: GetConnectedDevicesUseCase,
     private val dispatcher: CoroutineDispatcher
 ) : ViewModel() {
@@ -95,5 +96,10 @@ class DevicesViewModel(
 
     fun connectToDevice(device: DeviceUiModel) = viewModelScope.launch(dispatcher) {
         addDeviceToConnectedDevicesUseCase.invoke(device.toDomain())
+    }
+
+    fun unpair(deviceId: String) = viewModelScope.launch(dispatcher) {
+        rejectPendingConnectionUseCase.invoke(deviceId)
+        removeDeviceFromConnectedDevicesUseCase.invoke(deviceId)
     }
 }

@@ -16,7 +16,7 @@ interface DevicesRepository {
     suspend fun stopBroadcastingMyDevice()
 
     suspend fun connectToDevice(device: Device)
-    suspend fun disconnectDevice(device: Device)
+    suspend fun disconnectDevice(deviceId:String)
     fun getConnectedDevices(): Flow<List<ConnectedDevice>>
 
     fun getPendingConnectionDevices(): Flow<List<Device>>

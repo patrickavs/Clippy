@@ -2,6 +2,10 @@ package ir.amirroid.clipshare.devices
 
 import androidx.compose.animation.AnimatedContent
 import androidx.compose.animation.animateContentSize
+import androidx.compose.animation.core.animateFloatAsState
+import androidx.compose.foundation.hoverable
+import androidx.compose.foundation.interaction.MutableInteractionSource
+import androidx.compose.foundation.interaction.collectIsHoveredAsState
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
@@ -13,6 +17,7 @@ import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.staggeredgrid.LazyVerticalStaggeredGrid
 import androidx.compose.foundation.lazy.staggeredgrid.StaggeredGridCells
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DesktopWindows
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PhoneIphone
@@ -27,6 +32,7 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.key
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
@@ -36,6 +42,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.amirroid.clipshare.design_system.components.AppButton
+import ir.amirroid.clipshare.design_system.components.AppIconButton
 import ir.amirroid.clipshare.design_system.components.AppListItem
 import ir.amirroid.clipshare.design_system.components.AppText
 import ir.amirroid.clipshare.design_system.components.AppTopAppBar
@@ -83,7 +90,7 @@ fun DevicesScreen(
                     modifier = Modifier.animateItem().fillMaxWidth(),
                     expandedByDefault = true
                 ) {
-                    ConnectedDevicesList(screenState.connectedDevices)
+                    ConnectedDevicesList(screenState.connectedDevices, onUnpair = viewModel::unpair)
                 }
             }
             item("nearby_devices") {
@@ -225,6 +232,7 @@ fun DeviceItem(device: DeviceUiModel, onConnect: () -> Unit) {
 @Composable
 private fun ConnectedDevicesList(
     devices: ImmutableList<ConnectedDeviceUiModel>,
+    onUnpair: (String) -> Unit
 ) {
     Column(
         modifier = Modifier
@@ -242,7 +250,9 @@ private fun ConnectedDevicesList(
         } else {
             devices.forEach { connectedDevice ->
                 key(connectedDevice.device.id) {
-                    ConnectedDeviceItem(connectedDevice)
+                    ConnectedDeviceItem(
+                        connectedDevice,
+                        onUnpair = { onUnpair.invoke(connectedDevice.device.id) })
                 }
             }
         }
@@ -250,14 +260,32 @@ private fun ConnectedDevicesList(
 }
 
 @Composable
-fun ConnectedDeviceItem(connectedDevice: ConnectedDeviceUiModel) {
-    AppListItem(headlineContent = {
-        AppText(connectedDevice.device.name)
-    }, leadingContent = {
-        PlatformIcon(connectedDevice.device.platform)
-    }, trailingContent = {
-        ConnectionStatusText(connectedDevice.connectionStatus)
-    })
+fun ConnectedDeviceItem(connectedDevice: ConnectedDeviceUiModel, onUnpair: () -> Unit) {
+    val interactionSource = remember { MutableInteractionSource() }
+    val isHovered by interactionSource.collectIsHoveredAsState()
+    val alpha by animateFloatAsState(if (isHovered) 1f else 0.6f)
+
+    AppListItem(
+        headlineContent = {
+            AppText(connectedDevice.device.name)
+        },
+        leadingContent = {
+            PlatformIcon(connectedDevice.device.platform)
+        },
+        overlineContent = {
+            ConnectionStatusText(connectedDevice.connectionStatus)
+        },
+        trailingContent = {
+            AppIconButton(onClick = onUnpair) {
+                Icon(
+                    imageVector = Icons.Rounded.Delete,
+                    contentDescription = null,
+                    modifier = Modifier.alpha(alpha)
+                )
+            }
+        },
+        modifier = Modifier.hoverable(interactionSource)
+    )
 }
 
 @Composable
@@ -269,9 +297,7 @@ fun ConnectionStatusText(status: ConnectionStatus) {
 
     AppText(
         text = status.name,
-        color = color,
-        style = MaterialTheme.typography.bodySmall,
-        modifier = Modifier.padding(4.dp)
+        color = color
     )
 }
 

@@ -18,6 +18,7 @@ actual fun Module.configureDriver() {
             AppDatabase.Schema.create(driver)
         }
 
+        driver.execute(null, "PRAGMA foreign_keys=ON;", 0)
         driver
     }
 }
