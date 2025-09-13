@@ -41,6 +41,7 @@ compose.desktop {
 
             macOS {
                 iconFile = project.file("icons").resolve("clipshare.icns")
+                jvmArgs("-Dapple.awt.enableTemplateImages=true")
             }
 
             windows {
