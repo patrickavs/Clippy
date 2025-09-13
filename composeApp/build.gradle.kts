@@ -23,6 +23,10 @@ kotlin {
             implementation(projects.shared.connectivity)
             implementation(projects.shared.clipboard)
         }
+
+        desktopMain.dependencies {
+            implementation(libs.auto.launch)
+        }
     }
 }
 
@@ -32,7 +36,7 @@ compose.desktop {
 
         nativeDistributions {
             targetFormats(TargetFormat.Dmg, TargetFormat.Msi, TargetFormat.Deb)
-            packageName = "ir.amirroid.clipshare"
+            packageName = "ClipShare"
             packageVersion = "1.0.0"
 
             macOS {
@@ -45,6 +49,11 @@ compose.desktop {
 
             linux {
                 iconFile = project.file("icons").resolve("clipshare.jpeg")
+            }
+
+
+            nativeDistributions {
+                modules("java.sql")
             }
 
             jvmArgs("-Dapple.awt.application.appearance=system")

@@ -35,14 +35,8 @@ class SignalingServiceImpl(
         scope.launch {
             while (isActive) {
                 try {
-                    session = httpClient.webSocketSession {
+                    session = httpClient.webSocketSession("ws://192.168.1.51:8080/signaling") {
                         header("uid", deviceUidProvider.getDeviceId())
-                        url {
-                            protocol = URLProtocol.WS
-                            host = "192.168.1.51"
-                            port = 8080
-                            path("signaling")
-                        }
                     }
                     onConnected?.invoke()
                     handleFrames()

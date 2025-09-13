@@ -1,6 +1,6 @@
 package ir.amirroid.clipshare
 
-fun main() {
+suspend fun main() {
     Application.start()
     ApplicationUi.start()
 }
