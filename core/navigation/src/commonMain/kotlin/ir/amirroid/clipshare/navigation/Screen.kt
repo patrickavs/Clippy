@@ -20,6 +20,12 @@ sealed interface Screen {
     @Serializable
     data object Devices : Screen
 
+    @Serializable
+    data object QrCode : Screen
+
+    @Serializable
+    data object Scanner : Screen
+
     companion object {
         val navigationPages = listOf(
             NavigationBarItem(

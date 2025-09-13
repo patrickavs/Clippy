@@ -1,6 +1,8 @@
 [versions]
 agp = "8.12.1"
 autoLaunch = "0.7.0"
+qrose = "1.0.1"
+scanner = "0.4.0"
 webrtc-android = "137.7151.03"
 android-compileSdk = "36"
 android-minSdk = "24"
@@ -32,6 +34,8 @@ webrtcJava = "0.14.0"
 
 [libraries]
 auto-launch = { module = "io.github.vinceglb:auto-launch", version.ref = "autoLaunch" }
+qrose = { module = "io.github.alexzhirkevich:qrose", version.ref = "qrose" }
+scanner = { module = "io.github.kalinjul.easyqrscan:scanner", version.ref = "scanner" }
 webrtc-android = { module = "io.github.webrtc-sdk:android", version.ref = "webrtc-android" }
 coil-compose = { module = "io.coil-kt.coil3:coil-compose", version.ref = "coilCompose" }
 kotlin-test = { module = "org.jetbrains.kotlin:kotlin-test", version.ref = "kotlin" }

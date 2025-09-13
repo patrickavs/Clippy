@@ -21,6 +21,8 @@ import androidx.compose.material.icons.rounded.Delete
 import androidx.compose.material.icons.rounded.DesktopWindows
 import androidx.compose.material.icons.rounded.PhoneAndroid
 import androidx.compose.material.icons.rounded.PhoneIphone
+import androidx.compose.material.icons.rounded.QrCode
+import androidx.compose.material.icons.rounded.QrCodeScanner
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExperimentalMaterial3ExpressiveApi
 import androidx.compose.material3.Icon
@@ -41,6 +43,8 @@ import androidx.compose.ui.platform.LocalWindowInfo
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
+import ir.amirroid.clipshare.common.app.utils.Platform
+import ir.amirroid.clipshare.common.app.utils.isMobile
 import ir.amirroid.clipshare.design_system.components.AppButton
 import ir.amirroid.clipshare.design_system.components.AppIconButton
 import ir.amirroid.clipshare.design_system.components.AppListItem
@@ -58,6 +62,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3Api::class, ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun DevicesScreen(
+    onGoToQrCode: () -> Unit,
+    onGoToScanner: () -> Unit,
     viewModel: DevicesViewModel = koinViewModel()
 ) {
     val screenState by viewModel.screenState.collectAsStateWithLifecycle()
@@ -76,6 +82,22 @@ fun DevicesScreen(
         AppTopAppBar(
             title = {
                 AppText("Devices")
+            },
+            actions = {
+                if (Platform.current().isMobile()) {
+                    AppIconButton(onClick = onGoToScanner) {
+                        Icon(
+                            imageVector = Icons.Rounded.QrCodeScanner,
+                            contentDescription = null
+                        )
+                    }
+                }
+                AppIconButton(onClick = onGoToQrCode) {
+                    Icon(
+                        imageVector = Icons.Rounded.QrCode,
+                        contentDescription = null
+                    )
+                }
             }
         )
         LazyVerticalStaggeredGrid(

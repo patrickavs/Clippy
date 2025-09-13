@@ -48,11 +48,14 @@ include(":core:database")
 include(":core:process")
 include(":core:data")
 include(":core:domain")
+include(":core:resources")
 include(":core:ui-models")
 include(":core:design-system")
 
 // Features
 include(":features:history")
 include(":features:devices")
+include(":features:scanner")
+include(":features:qrcode")
 
 includeBuild("build-logic")

@@ -27,6 +27,8 @@ import androidx.navigation.compose.rememberNavController
 import ir.amirroid.clipshare.design_system.components.AppText
 import ir.amirroid.clipshare.devices.DevicesScreen
 import ir.amirroid.clipshare.history.ClipboardHistoryScreen
+import ir.amirroid.clipshare.qrcode.QrCodeScreen
+import ir.amirroid.clipshare.scanner.ScannerScreen
 
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
@@ -54,7 +56,20 @@ fun MainNavigation() {
                 ClipboardHistoryScreen()
             }
             composable<Screen.Devices> {
-                DevicesScreen()
+                DevicesScreen(
+                    onGoToScanner = { navController.navigate(Screen.Scanner) },
+                    onGoToQrCode = { navController.navigate(Screen.QrCode) }
+                )
+            }
+            composable<Screen.QrCode> {
+                QrCodeScreen(
+                    onBack = navController::navigateUp
+                )
+            }
+            composable<Screen.Scanner> {
+                ScannerScreen(
+                    onBack = navController::navigateUp
+                )
             }
         }
     }

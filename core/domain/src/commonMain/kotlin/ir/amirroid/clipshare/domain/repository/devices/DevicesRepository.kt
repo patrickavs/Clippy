@@ -16,10 +16,12 @@ interface DevicesRepository {
     suspend fun stopBroadcastingMyDevice()
 
     suspend fun connectToDevice(device: Device)
-    suspend fun disconnectDevice(deviceId:String)
+    suspend fun disconnectDevice(deviceId: String)
     fun getConnectedDevices(): Flow<List<ConnectedDevice>>
 
     fun getPendingConnectionDevices(): Flow<List<Device>>
     suspend fun acceptPendingDevice(targetDeviceId: String)
     suspend fun rejectPendingDevice(targetDeviceId: String)
+
+    fun getDeviceInfo(): Device
 }

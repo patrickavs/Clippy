@@ -8,6 +8,7 @@ import ir.amirroid.clipshare.domain.usecase.clipboard.SetOneFileClipboardUseCase
 import ir.amirroid.clipshare.domain.usecase.device.AcceptPendingConnectionUseCase
 import ir.amirroid.clipshare.domain.usecase.device.AddDeviceToConnectedDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetConnectedDevicesUseCase
+import ir.amirroid.clipshare.domain.usecase.device.GetDeviceInfoUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetIsStartedBroadcastingUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetNearByDevicesUseCase
 import ir.amirroid.clipshare.domain.usecase.device.GetPendingConnectionsUseCase
@@ -38,4 +39,5 @@ val useCaseModule = module {
     factoryOf(::RejectPendingConnectionUseCase)
     factoryOf(::GetPendingConnectionsUseCase)
     factoryOf(::AcceptPendingConnectionUseCase)
+    factoryOf(::GetDeviceInfoUseCase)
 }

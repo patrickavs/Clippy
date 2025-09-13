@@ -20,6 +20,8 @@ kotlin {
 
             implementation(projects.features.history)
             implementation(projects.features.devices)
+            implementation(projects.features.qrcode)
+            implementation(projects.features.scanner)
         }
     }
 }

@@ -25,6 +25,7 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.compose.collectAsStateWithLifecycle
 import ir.amirroid.clipshare.design_system.components.AppButton
+import ir.amirroid.clipshare.design_system.components.AppSurface
 import ir.amirroid.clipshare.design_system.components.AppText
 import ir.amirroid.clipshare.domain.models.utils.DevicePlatform
 
@@ -36,7 +37,6 @@ fun PendingConnectionsDialogs(
     val pendingConnections by viewModel.pendingConnections.collectAsStateWithLifecycle()
 
     pendingConnections.forEach { connection ->
-
         AlertDialog(
             onDismissRequest = { },
             title = {
@@ -55,7 +55,7 @@ fun PendingConnectionsDialogs(
                 }
             },
             icon = {
-                Surface(
+                AppSurface(
                     color = MaterialTheme.colorScheme.primary,
                     shape = MaterialShapes.Sunny.toShape(),
                     contentColor = MaterialTheme.colorScheme.onPrimary,

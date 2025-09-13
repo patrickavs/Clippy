@@ -4,6 +4,7 @@ import ir.amirroid.clipshare.connectivity.broadcast.DeviceBroadcastService
 import ir.amirroid.clipshare.connectivity.connection.ConnectionRegistry
 import ir.amirroid.clipshare.connectivity.discovery.DeviceDiscoveryService
 import ir.amirroid.clipshare.connectivity.pending.PendingConnectionManager
+import ir.amirroid.clipshare.connectivity.provider.DeviceInfoProvider
 import ir.amirroid.clipshare.connectivity.sync.SyncService
 import ir.amirroid.clipshare.data.mapper.toDomain
 import ir.amirroid.clipshare.data.mapper.toEntity
@@ -22,6 +23,7 @@ class DevicesRepositoryImpl(
     private val deviceDao: DeviceDao,
     private val connectionRegistry: ConnectionRegistry,
     private val pendingConnectionManager: PendingConnectionManager,
+    private val deviceInfoProvider: DeviceInfoProvider,
     private val syncService: SyncService
 ) : DevicesRepository {
     override val nearbyDevices = discoveryService.incoming.map { devices ->
@@ -84,5 +86,9 @@ class DevicesRepositoryImpl(
 
     override suspend fun rejectPendingDevice(targetDeviceId: String) {
         syncService.rejectConnection(targetDeviceId)
+    }
+
+    override fun getDeviceInfo(): Device {
+        return deviceInfoProvider.getDeviceInfo().toDomain()
     }
 }

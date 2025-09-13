@@ -12,7 +12,7 @@ sealed interface Platform {
         data object Ios : Mobile
     }
 
-    companion object : Platform by getCurrentPlatform() {
+    companion object {
         fun current() = getCurrentPlatform()
     }
 }
