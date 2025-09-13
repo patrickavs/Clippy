@@ -7,5 +7,6 @@ interface SignalingService {
     fun close()
     suspend fun sendMessage(message: SignalingMessage)
     fun onConnected(action: () -> Unit)
+    fun onDisconnected(action: () -> Unit)
     fun onMessage(action: (SignalingMessage) -> Unit)
 }

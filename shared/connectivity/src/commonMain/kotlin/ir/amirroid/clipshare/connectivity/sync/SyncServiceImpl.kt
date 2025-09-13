@@ -1,6 +1,5 @@
 package ir.amirroid.clipshare.connectivity.sync
 
-import co.touchlab.kermit.Logger
 import ir.amirroid.clipshare.connectivity.connection.ConnectionRegistry
 import ir.amirroid.clipshare.connectivity.device.DeviceUidProvider
 import ir.amirroid.clipshare.connectivity.models.SignalingIceCandidate
@@ -109,7 +108,6 @@ class SyncServiceImpl(
         val connection: PeerToPeerConnectionService = getKoin().get()
         connection.onIceCandidate { candidate ->
             scope.launch {
-                Logger.withTag("SYNC_SERVICE").d { "onIceCandidate $candidate" }
                 signalingService.sendMessage(
                     createSignalingMessageForIceCandidate(
                         deviceId,
@@ -137,7 +135,7 @@ class SyncServiceImpl(
     }
 
     override suspend fun call(targetDeviceId: String) {
-        if (connectionRegistry.hasOutgoingOffer(targetDeviceId)) return
+        if (connectionRegistry.hasOutgoingOfferWithTimeout(targetDeviceId)) return
 
         val connection =
             connectionRegistry.getConnection(targetDeviceId) ?: createConnection(targetDeviceId)

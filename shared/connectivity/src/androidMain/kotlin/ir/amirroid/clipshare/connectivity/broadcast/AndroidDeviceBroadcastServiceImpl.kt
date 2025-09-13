@@ -47,7 +47,7 @@ class AndroidDeviceBroadcastServiceImpl(
 
             _isStarted.update { true }
             while (isActive) {
-                s.send(packet)
+                runCatching { s.send(packet) }
                 delay(DeviceBroadcastService.BROADCAST_INTERVAL_MS)
             }
         }
@@ -77,7 +77,7 @@ class AndroidDeviceBroadcastServiceImpl(
     override suspend fun stopBroadcasting() {
         job?.cancelAndJoin()
         job = null
-        socket?.send(createBroadcastPacket(RequestType.REMOVE))
+        runCatching { socket?.send(createBroadcastPacket(RequestType.REMOVE)) }
         socket?.close()
         socket = null
         _isStarted.update { false }

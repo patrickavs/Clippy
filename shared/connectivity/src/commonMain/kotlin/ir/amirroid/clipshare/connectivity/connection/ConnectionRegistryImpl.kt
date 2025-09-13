@@ -40,14 +40,18 @@ class ConnectionRegistryImpl(
             .distinctUntilChanged()
     }
 
-    @OptIn(ExperimentalTime::class)
     override fun hasOutgoingOffer(deviceId: String): Boolean {
+        return connections[deviceId] != null
+    }
+
+    @OptIn(ExperimentalTime::class)
+    override fun hasOutgoingOfferWithTimeout(deviceId: String): Boolean {
         connections[deviceId] ?: return false
         val createdAt = connectionTimes[deviceId] ?: return false
         val now = Clock.System.now().toEpochMilliseconds()
 
         val status = _statusFlow.value[deviceId]
-        if (status != ConnectionStatus.CONNECTED && now - createdAt > 60_000L) {
+        if (status != ConnectionStatus.CONNECTED && now - createdAt > 30_000L) {
             removeConnection(deviceId)
             return false
         }

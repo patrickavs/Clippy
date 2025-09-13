@@ -27,19 +27,27 @@ class SignalingServiceImpl(
     private var session: WebSocketSession? = null
     private var action: ((SignalingMessage) -> Unit)? = null
     private var onConnected: (() -> Unit)? = null
+    private var onDisconnected: (() -> Unit)? = null
     private val scope = CoroutineScope(dispatcher)
+
+    private var isStarted = false
 
     override fun connect() {
         scope.launch {
             while (isActive) {
                 try {
-                    session = httpClient.webSocketSession("ws://192.168.1.51:8080/signaling") {
+                    session = httpClient.webSocketSession("wss://clipshare.liara.run/signaling") {
                         header("uid", deviceUidProvider.getDeviceId())
                     }
                     onConnected?.invoke()
                     handleFrames()
+                    isStarted = true
                 } catch (e: Exception) {
                     Logger.withTag("SIGNALING").e { "WebSocket failed: ${e.message}" }
+                    if (isStarted) {
+                        onDisconnected?.invoke()
+                        isStarted = false
+                    }
                     delay(3000)
                 }
             }
@@ -59,6 +67,8 @@ class SignalingServiceImpl(
     override fun close() {
         action = null
         onConnected = null
+        onDisconnected = null
+        isStarted = false
         session?.cancel()
         scope.cancel()
     }
@@ -69,6 +79,10 @@ class SignalingServiceImpl(
 
     override fun onConnected(action: () -> Unit) {
         this.onConnected = action
+    }
+
+    override fun onDisconnected(action: () -> Unit) {
+        this.onDisconnected = action
     }
 
     override fun onMessage(action: (SignalingMessage) -> Unit) {

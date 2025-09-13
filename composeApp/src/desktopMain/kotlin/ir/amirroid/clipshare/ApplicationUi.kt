@@ -65,7 +65,7 @@ object ApplicationUi {
             icon = rememberVectorPainter(Icons.Rounded.CopyAll),
             state = rememberTrayState()
         ) {
-            Item(text = "Show Window", onClick = onShowWindow)
+            Item(text = "Show ClipShare", onClick = onShowWindow)
             Item(text = "Exit", onClick = {
                 Application.close()
                 exitApplication()

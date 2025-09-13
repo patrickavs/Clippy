@@ -24,6 +24,7 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.FlowPreview
 import kotlinx.coroutines.SupervisorJob
 import kotlinx.coroutines.cancel
+import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
 import kotlinx.coroutines.launch
@@ -54,6 +55,7 @@ class ClipboardConnectionManagerImpl(
     override fun start() {
         if (syncService.isStarted.not()) syncService.start()
         signalingService.onConnected {
+            Logger.withTag("sadasdas").d { "CONNECTED" }
             scope.launch {
                 launch { handleDevicesFromDatabase() }
                 launch { observeIncomingMessages() }
@@ -66,7 +68,7 @@ class ClipboardConnectionManagerImpl(
             val currentAllConnectedDevices = connectionRegistry.allConnectionDevices()
             val devicesIds = devices.map { it.id }
 
-            devices.filter { it.id !in currentAllConnectedDevices && !it.isHost }.forEach {
+            devices.filter { !it.isHost }.forEach {
                 syncService.announceOnline(it.id)
             }
 

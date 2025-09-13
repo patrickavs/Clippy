@@ -47,7 +47,7 @@ class DesktopDeviceBroadcastServiceImpl(
 
             _isStarted.update { true }
             while (isActive) {
-                s.send(packet)
+                runCatching { s.send(packet) }
                 delay(DeviceBroadcastService.BROADCAST_INTERVAL_MS)
             }
         }
