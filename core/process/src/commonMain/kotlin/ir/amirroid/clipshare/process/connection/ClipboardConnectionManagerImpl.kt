@@ -1,5 +1,6 @@
 package ir.amirroid.clipshare.process.connection
 
+import co.touchlab.kermit.Logger
 import ir.amirroid.clipshare.clipboard.manager.ClipboardManager
 import ir.amirroid.clipshare.clipboard.models.ClipboardContent
 import ir.amirroid.clipshare.clipboard.models.ClipboardContentRequest
@@ -61,7 +62,7 @@ class ClipboardConnectionManagerImpl(
             }
         }
         signalingService.onDisconnected {
-            connectionRegistry.close()
+            connectionRegistry.removeAllConnections()
             scope.coroutineContext.cancelChildren()
         }
     }

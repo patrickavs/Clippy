@@ -14,6 +14,7 @@ interface ConnectionRegistry {
     fun allConnections(): List<PeerToPeerConnectionService>
     fun allConnectionDevices(): List<String>
     fun close()
+    fun removeAllConnections()
     fun connectionStatusFlow(deviceId: String): Flow<ConnectionStatus>
     fun connectionStatus(deviceId: String): ConnectionStatus?
 }

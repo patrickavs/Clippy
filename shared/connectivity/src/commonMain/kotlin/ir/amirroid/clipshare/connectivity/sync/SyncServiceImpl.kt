@@ -52,10 +52,6 @@ class SyncServiceImpl(
                         call(message.from)
                     }
 
-                    SignalingMessageType.ANNOUNCE_OFFLINE -> {
-                        connectionRegistry.removeConnection(message.from)
-                    }
-
                     SignalingMessageType.OFFER -> {
                         handleIncomingOffer(message)
                     }
@@ -164,7 +160,7 @@ class SyncServiceImpl(
     }
 
     override fun close() {
-        connectionRegistry.allConnections().forEach { it.close() }
+        connectionRegistry.close()
         signalingService.close()
         scope.cancel()
         isStarted = false

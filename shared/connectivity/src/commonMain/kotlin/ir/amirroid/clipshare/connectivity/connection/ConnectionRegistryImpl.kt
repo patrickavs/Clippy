@@ -81,8 +81,12 @@ class ConnectionRegistryImpl(
     }
 
     override fun close() {
+        removeAllConnections()
+        scope.cancel()
+    }
+
+    override fun removeAllConnections() {
         connections.values.forEach { it.close() }
         connectionTimes.clear()
-        scope.cancel()
     }
 }
