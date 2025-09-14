@@ -36,7 +36,7 @@ class SignalingServiceImpl(
         scope.launch {
             while (isActive) {
                 try {
-                    session = httpClient.webSocketSession("ws://192.168.1.51:8080/signaling") {
+                    session = httpClient.webSocketSession("wss://clipshare.liara.run/signaling") {
                         header("uid", deviceUidProvider.getDeviceId())
                     }
                     onConnected?.invoke()
