@@ -1,6 +1,5 @@
 package ir.amirroid.clipshare.process.connection
 
-import co.touchlab.kermit.Logger
 import ir.amirroid.clipshare.clipboard.manager.ClipboardManager
 import ir.amirroid.clipshare.clipboard.models.ClipboardContent
 import ir.amirroid.clipshare.clipboard.models.ClipboardContentRequest
@@ -27,6 +26,7 @@ import kotlinx.coroutines.cancel
 import kotlinx.coroutines.cancelChildren
 import kotlinx.coroutines.flow.collectLatest
 import kotlinx.coroutines.flow.debounce
+import kotlinx.coroutines.flow.takeWhile
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.sync.Mutex
 import kotlinx.coroutines.sync.withLock
@@ -55,11 +55,14 @@ class ClipboardConnectionManagerImpl(
     override fun start() {
         if (syncService.isStarted.not()) syncService.start()
         signalingService.onConnected {
-            Logger.withTag("sadasdas").d { "CONNECTED" }
             scope.launch {
                 launch { handleDevicesFromDatabase() }
                 launch { observeIncomingMessages() }
             }
+        }
+        signalingService.onDisconnected {
+            connectionRegistry.close()
+            scope.coroutineContext.cancelChildren()
         }
     }
 
@@ -100,6 +103,7 @@ class ClipboardConnectionManagerImpl(
     ) {
         syncStatusDao.getAllUnsyncedClipboardItems(deviceId)
             .debounce(300)
+            .takeWhile { connectionRegistry.connectionStatus(deviceId) == ConnectionStatus.CONNECTED }
             .collectLatest { entities ->
                 if (entities.isEmpty()) return@collectLatest
 
@@ -205,8 +209,6 @@ class ClipboardConnectionManagerImpl(
                     groupMutex.withLock {
                         val groupFiles = receivedFileGroups.getOrPut(groupId) { mutableListOf() }
                         groupFiles += path
-                        Logger.withTag("asdssadsdas")
-                            .d { "$groupId ${buffer.isLastItemInGroup} $groupFiles" }
                         request.takeIf { buffer.isLastItemInGroup }?.copy(
                             data = json.encodeToString(groupFiles)
                         )

@@ -40,6 +40,10 @@ class ConnectionRegistryImpl(
             .distinctUntilChanged()
     }
 
+    override fun connectionStatus(deviceId: String): ConnectionStatus? {
+        return _statusFlow.value[deviceId]
+    }
+
     override fun hasOutgoingOffer(deviceId: String): Boolean {
         return connections[deviceId] != null
     }

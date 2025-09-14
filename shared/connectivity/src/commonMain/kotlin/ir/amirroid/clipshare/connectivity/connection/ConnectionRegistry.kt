@@ -15,4 +15,5 @@ interface ConnectionRegistry {
     fun allConnectionDevices(): List<String>
     fun close()
     fun connectionStatusFlow(deviceId: String): Flow<ConnectionStatus>
+    fun connectionStatus(deviceId: String): ConnectionStatus?
 }

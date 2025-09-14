@@ -9,7 +9,7 @@ data class SignalingMessage(
     val to: String,
     val sdp: SignalingSdp? = null,
     val candidate: SignalingIceCandidate? = null,
-    val sender: DeviceInfo
+    val sender: DeviceInfo? = null
 )
 
 
@@ -18,6 +18,7 @@ enum class SignalingMessageType {
     ANSWER,
     ICE_CANDIDATE,
     ANNOUNCE_ONLINE,
+    ANNOUNCE_OFFLINE,
     REJECT
 }
 

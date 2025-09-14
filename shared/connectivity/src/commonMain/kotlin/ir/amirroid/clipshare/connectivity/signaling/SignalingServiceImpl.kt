@@ -36,12 +36,12 @@ class SignalingServiceImpl(
         scope.launch {
             while (isActive) {
                 try {
-                    session = httpClient.webSocketSession("wss://clipshare.liara.run/signaling") {
+                    session = httpClient.webSocketSession("ws://192.168.1.51:8080/signaling") {
                         header("uid", deviceUidProvider.getDeviceId())
                     }
                     onConnected?.invoke()
-                    handleFrames()
                     isStarted = true
+                    handleFrames()
                 } catch (e: Exception) {
                     Logger.withTag("SIGNALING").e { "WebSocket failed: ${e.message}" }
                     if (isStarted) {

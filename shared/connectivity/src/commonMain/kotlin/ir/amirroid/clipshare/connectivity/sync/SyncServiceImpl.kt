@@ -52,6 +52,10 @@ class SyncServiceImpl(
                         call(message.from)
                     }
 
+                    SignalingMessageType.ANNOUNCE_OFFLINE -> {
+                        connectionRegistry.removeConnection(message.from)
+                    }
+
                     SignalingMessageType.OFFER -> {
                         handleIncomingOffer(message)
                     }
@@ -84,7 +88,7 @@ class SyncServiceImpl(
         if (deviceDao.checkExistsDeviceById(message.from)) {
             handleOffer(message)
         } else {
-            pendingConnectionManager.addNewPending(message.sender, message)
+            pendingConnectionManager.addNewPending(message.sender ?: return, message)
         }
     }
 

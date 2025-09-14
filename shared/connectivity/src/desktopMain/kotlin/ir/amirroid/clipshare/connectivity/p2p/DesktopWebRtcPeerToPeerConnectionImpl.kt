@@ -81,6 +81,7 @@ class DesktopWebRtcPeerToPeerConnectionImpl(
 
     override suspend fun sendMessage(message: String) {
         val dc = senderDataChannel ?: throw IllegalStateException("RTCDataChannel is null")
+
         if (dc.state != RTCDataChannelState.OPEN) {
             throw IllegalStateException("RTCDataChannel is not open, state=${dc.state}")
         }
