@@ -7,9 +7,7 @@
 
 # ClipShare
 
-**ClipShare** is a modern application for **fast file and data sharing between devices**. It uses *
-*Peer-to-Peer (P2P) connections** to transfer data directly between devices without relying on a
-central server.
+**ClipShare** is a modern application for **managing and sharing clipboard content between devices**. It supports clipboard **history** and allows sharing clipboard items of different types directly between devices, including **TEXT, FILES, IMAGE, HTML, and RTF**.
 
 ---
 
@@ -44,13 +42,13 @@ central server.
 **`features/`** – Feature modules (Screens)
 
 * `devices/` – Device discovery and management UI
-* `history/` – Transfer history UI
+* `history/` – Clipboard history UI
 * `qrcode/` – QR code generation and scanning
 * `scanner/` – Scanner UI for QR codes
 
 **`shared/`** – Shared modules
 
-* `clipboard/` – Clipboard integration
+* `clipboard/` – Clipboard management
 * `common/` – Shared utilities and Compose helpers
 
     * `app/` – App-level utilities
@@ -64,30 +62,28 @@ central server.
 ## How it Works
 
 1. **Device Discovery**
-   ClipShare discovers nearby devices using **UDP sockets**. Each device broadcasts its presence and
-   listens for other devices.
+   ClipShare discovers nearby devices using **UDP sockets**. Each device broadcasts its presence and listens for others.
 
-2. **Signaling Server**
-   To establish a **WebRTC connection**, ClipShare uses a lightweight **signaling server** to
-   exchange **SDP information** and ICE candidates.
+2. **Signaling Server**  
+   To establish a connection for sharing clipboard items, ClipShare uses a lightweight **signaling server** to exchange **SDP information** and ICE candidates.
+   The server implementation can be found here: [ClipShare Signaling Server](https://github.com/amirroid/clipshare-back)
 
 3. **Peer-to-Peer Connection**
-   After SDP exchange via the signaling server, a **direct P2P WebRTC connection** is established
-   for sending files, messages, and data directly between devices.
+   After SDP exchange, a **direct P2P WebRTC connection** is established for sharing clipboard content of supported types.
 
 4. **Background Processes**
-   The `process` module handles background tasks, binding services like connectivity, clipboard
-   monitoring, and storage management to ensure smooth operation.
+   The `process` module handles background tasks, binding services like connectivity and clipboard monitoring to ensure smooth operation.
 
 ---
 
 ## Features
 
-* Direct P2P file sharing without a central server
-* Local network device discovery using UDP
-* Reliable data transfer over WebRTC
+* Clipboard history management
+* Sharing clipboard content between devices
+* Supported types: TEXT, FILES, IMAGE, HTML, RTF
+* Device discovery using UDP
 * Lightweight signaling server for connection setup
-* Background service management for clipboard, storage, and connectivity
+* Background service management for clipboard and connectivity
 
 ---
 
