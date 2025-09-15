@@ -101,40 +101,42 @@ abstract class BasicClipboardManager(private val context: Context, private val j
     }
 
     protected fun getClipboardContent(): ClipboardContent? {
-        val primaryClip = clipboardManager.primaryClip ?: return null
-        if (primaryClip.itemCount == 0) return null
+        return runCatching {
+            val primaryClip = clipboardManager.primaryClip ?: return null
+            if (primaryClip.itemCount == 0) return null
 
-        val item = primaryClip.getItemAt(0)
-        val description = primaryClip.description
+            val item = primaryClip.getItemAt(0)
+            val description = primaryClip.description
 
-        return when {
-            description.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML) -> {
-                val html = item.htmlText ?: return null
-                val plain = item.text?.toString().orEmpty()
-                ClipboardContent.Html(HtmlWithPlainText(html = html, text = plain))
-            }
-
-            description.hasMimeType("text/rtf") -> {
-                val rtf = item.text?.toString() ?: return null
-                ClipboardContent.Rtf(rtf)
-            }
-
-            description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) -> {
-                ClipboardContent.Text(item.text?.toString() ?: return null)
-            }
-
-            item.uri != null -> {
-                val uri = item.uri!!
-                context.contentResolver.openInputStream(uri)?.use { ins ->
-                    val filename = uri.lastPathSegment ?: System.currentTimeMillis().toString()
-                    val outFile = File(context.cacheDir, filename)
-                    ins.copyTo(outFile.outputStream())
-
-                    ClipboardContent.Files(listOf(outFile.path))
+            when {
+                description.hasMimeType(ClipDescription.MIMETYPE_TEXT_HTML) -> {
+                    val html = item.htmlText ?: return null
+                    val plain = item.text?.toString().orEmpty()
+                    ClipboardContent.Html(HtmlWithPlainText(html = html, text = plain))
                 }
-            }
 
-            else -> null
-        }
+                description.hasMimeType("text/rtf") -> {
+                    val rtf = item.text?.toString() ?: return null
+                    ClipboardContent.Rtf(rtf)
+                }
+
+                description.hasMimeType(ClipDescription.MIMETYPE_TEXT_PLAIN) -> {
+                    ClipboardContent.Text(item.text?.toString() ?: return null)
+                }
+
+                item.uri != null -> {
+                    val uri = item.uri!!
+                    context.contentResolver.openInputStream(uri)?.use { ins ->
+                        val filename = uri.lastPathSegment ?: System.currentTimeMillis().toString()
+                        val outFile = File(context.cacheDir, filename)
+                        ins.copyTo(outFile.outputStream())
+
+                        ClipboardContent.Files(listOf(outFile.path))
+                    }
+                }
+
+                else -> null
+            }
+        }.getOrNull()
     }
 }

@@ -26,22 +26,28 @@ internal fun Project.configureAndroidApplicationPlugins(
             setProperty("archivesBaseName", "${rootProject.name}-v$versionName")
         }
 
-//        splits {
-//            abi {
-//                isEnable = true
-//                reset()
-//                include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
-//                isUniversalApk = true
-//            }
-//        }
+        splits {
+            abi {
+                isEnable = true
+                reset()
+                include("armeabi-v7a", "arm64-v8a", "x86", "x86_64")
+                isUniversalApk = true
+            }
+        }
 
         configureSigningIfAvailable(this)
 
         packaging.resources.excludes += "/META-INF/{AL2.0,LGPL2.1}"
 
-        buildTypes.named("release") {
-            isMinifyEnabled = RELEASE_IS_MINIFY_ENABLED
-        }
+//        buildTypes.named("release") {
+//            isMinifyEnabled = RELEASE_IS_MINIFY_ENABLED
+//            isShrinkResources = RELEASE_IS_MINIFY_ENABLED
+//
+//            proguardFiles(
+//                getDefaultProguardFile("proguard-android-optimize.txt"),
+//                "proguard-rules.pro"
+//            )
+//        }
 
         compileOptions {
             sourceCompatibility = JavaVersion.VERSION_21

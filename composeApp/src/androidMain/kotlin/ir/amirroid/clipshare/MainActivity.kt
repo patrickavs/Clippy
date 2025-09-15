@@ -4,7 +4,6 @@ import android.Manifest
 import android.content.pm.PackageManager
 import android.os.Build
 import android.os.Bundle
-import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -29,6 +28,33 @@ class MainActivity : ComponentActivity() {
         }
     }
 
+//    @Composable
+//    fun ShowEnableKeyboardDialog(
+//        onDismiss: () -> Unit
+//    ) {
+//        AlertDialog(
+//            onDismissRequest = { onDismiss() },
+//            title = { AppText("Enable Keyboard") },
+//            text = {
+//                AppText("To allow the service to run in the background, please activate the Clipshare keyboard in your device settings.")
+//            },
+//            confirmButton = {
+//                TextButton(onClick = {
+//                    val intent = Intent(Settings.ACTION_INPUT_METHOD_SETTINGS)
+//                    startActivity(intent)
+//                    onDismiss()
+//                }) {
+//                    Text("Go to Settings")
+//                }
+//            },
+//            dismissButton = {
+//                TextButton(onClick = { onDismiss() }) {
+//                    Text("Cancel")
+//                }
+//            }
+//        )
+//    }
+
     private fun checkNotificationPermission() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.TIRAMISU) {
             if (ContextCompat.checkSelfPermission(
@@ -48,6 +74,19 @@ class MainActivity : ComponentActivity() {
             ClipShareServiceManager.startServiceIfNotStarted(this)
         }
     }
+
+//    private fun checkKeyboardEnable(): Boolean {
+//        val enabledInputMethods = Settings.Secure.getString(
+//            contentResolver,
+//            Settings.Secure.ENABLED_INPUT_METHODS
+//        ) ?: return false
+//
+//        Logger.withTag("sadsadas").d { enabledInputMethods }
+//
+//        val myKeyboardId = "$packageName/.ClipshareInputService"
+//
+//        return enabledInputMethods.split(":").contains(myKeyboardId)
+//    }
 
     override fun onRequestPermissionsResult(
         requestCode: Int,

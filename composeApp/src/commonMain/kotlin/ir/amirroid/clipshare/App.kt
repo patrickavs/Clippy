@@ -18,7 +18,8 @@ import org.koin.compose.viewmodel.koinViewModel
 @OptIn(ExperimentalMaterial3ExpressiveApi::class)
 @Composable
 fun App(
-    viewModel: MainViewModel = koinViewModel()
+    viewModel: MainViewModel = koinViewModel(),
+    content: (@Composable () -> Unit)? = null
 ) {
     val snakeState = rememberSnackbarHostState()
 
@@ -33,6 +34,7 @@ fun App(
         ) {
             MainNavigation()
             PendingConnectionsDialogs(viewModel)
+            content?.invoke()
         }
     }
 }
