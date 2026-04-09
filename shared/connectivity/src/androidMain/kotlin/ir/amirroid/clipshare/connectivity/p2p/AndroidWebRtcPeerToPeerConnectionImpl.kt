@@ -72,7 +72,7 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
         suspendCancellableCoroutine { cont ->
             setRemoteDescription(object : SimpleSdpObserver() {
                 override fun onSetSuccess() {
-                    cont.resume(Unit) {}
+                    cont.resume(Unit) { _, _, _ -> }
                 }
 
                 override fun onSetFailure(error: String?) {
@@ -162,7 +162,7 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
                     if (sdp == null) return
                     setLocalDescription(object : SimpleSdpObserver() {
                         override fun onSetSuccess() {
-                            continuation.resume(sdp) {}
+                            continuation.resume(sdp) { _, _, _ -> }
                         }
 
                         override fun onSetFailure(error: String?) {
