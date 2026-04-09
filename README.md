@@ -1,13 +1,13 @@
 <p align="center">
   <img src="composeApp/icons/clipshare.jpeg" 
-       alt="ClipShare Logo" 
+       alt="Clippy Logo" 
        width="120" 
        style="border-radius: 20%;"/>
 </p>
 
-# ClipShare
+# Clippy
 
-**ClipShare** is a modern application for **managing and sharing clipboard content between devices**. It supports clipboard **history** and allows sharing clipboard items of different types directly between devices, including **TEXT, FILES, IMAGE, HTML, and RTF**.
+**Clippy** is a modern application for **managing and sharing clipboard content between devices**. It supports clipboard **history** and allows sharing clipboard items of different types directly between devices, including **TEXT, FILES, IMAGE, HTML, and RTF**.
 
 ---
 
