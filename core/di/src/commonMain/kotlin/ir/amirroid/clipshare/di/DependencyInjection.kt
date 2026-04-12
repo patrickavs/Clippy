@@ -7,7 +7,7 @@ import ir.amirroid.clipshare.database.di.databaseModule
 import ir.amirroid.clipshare.domain.di.useCaseModule
 import ir.amirroid.clipshare.network.di.networkModule
 import ir.amirroid.clipshare.process.di.processorModule
-import ir.amirroid.clipshare.storage.storageModule
+import ir.amirroid.clipshare.storage.di.storageModule
 import org.koin.core.context.startKoin
 import org.koin.dsl.KoinAppDeclaration
 
