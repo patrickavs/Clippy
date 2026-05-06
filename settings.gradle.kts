@@ -58,4 +58,7 @@ include(":features:devices")
 include(":features:scanner")
 include(":features:qrcode")
 
+// Server
+include(":signaling-server")
+
 includeBuild("build-logic")

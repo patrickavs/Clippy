@@ -1,7 +1,7 @@
-<p align="center">
-  <img src="composeApp/icons/clipshare.jpeg" 
-       alt="Clippy Logo" 
-       width="120" 
+<p>
+  <img src="composeApp/icons/clipshare.jpeg"
+       alt="Clippy Logo"
+       width="120"
        style="border-radius: 20%;"/>
 </p>
 
@@ -46,6 +46,8 @@
 * `qrcode/` – QR code generation and scanning
 * `scanner/` – Scanner UI for QR codes
 
+**`signaling-server/`** – WebSocket signaling server for WebRTC connection setup
+
 **`shared/`** – Shared modules
 
 * `clipboard/` – Clipboard management
@@ -64,9 +66,9 @@
 1. **Device Discovery**
    ClipShare discovers nearby devices using **UDP sockets**. Each device broadcasts its presence and listens for others.
 
-2. **Signaling Server**  
+2. **Signaling Server**
    To establish a connection for sharing clipboard items, ClipShare uses a lightweight **signaling server** to exchange **SDP information** and ICE candidates.
-   The server implementation can be found here: [ClipShare Signaling Server](https://github.com/amirroid/clipshare-back)
+   The local implementation is available in the [`signaling-server/`](signaling-server/) directory. The source can also be found here: [ClipShare Signaling Server](https://github.com/amirroid/clipshare-back)
 
 3. **Peer-to-Peer Connection**
    After SDP exchange, a **direct P2P WebRTC connection** is established for sharing clipboard content of supported types.
