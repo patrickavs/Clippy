@@ -2,33 +2,32 @@ package ir.amirroid.clipshare.clipboard.manager
 
 import ir.amirroid.clipshare.clipboard.models.ClipboardContent
 import ir.amirroid.clipshare.clipboard.utils.ClipboardContentRequestConverter
-import java.awt.datatransfer.FlavorListener
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.isActive
+import kotlinx.coroutines.launch
 
 class DesktopClipboardManagerImpl(
     contentRequestConverter: ClipboardContentRequestConverter
 ) : BasicClipboardManager(contentRequestConverter) {
-    private var listener: FlavorListener? = null
 
     override fun addOnChangedListener(action: (ClipboardContent) -> Unit) {
-        listener?.let { systemClipboard.removeFlavorListener(it) }
+        job?.cancel()
+        job = scope.launch {
+            while (isActive) {
+                val content = readClipboard()
 
-        listener = createListener(action = action)
-        systemClipboard.addFlavorListener(listener)
-    }
+                if (content != null && content != lastContent) {
+                    lastContent = content
+                    action(content)
+                }
 
-    private fun createListener(action: (ClipboardContent) -> Unit): FlavorListener {
-        return FlavorListener {
-            if (it == null) return@FlavorListener
-            val content = readClipboard()
-            if (content != null) {
-                action(content)
+                delay(1000)
             }
         }
     }
 
-
     override fun dispose() {
-        listener?.let { systemClipboard.removeFlavorListener(it) }
-        listener = null
+        job?.cancel()
+        job = null
     }
 }

@@ -23,8 +23,17 @@ abstract class BasicClipboardManager(
 
     protected fun readClipboard(): ClipboardContent? {
         return runCatching {
-            val transferable: Transferable = systemClipboard.getContents(null)
-            TransferableConverter.fromTransferable(transferable)
+            // Temporarily suppress stderr to avoid spammy ClassNotFoundExceptions from AWT resolving custom IDE clipboards
+            val originalErr = System.err
+            try {
+                System.setErr(java.io.PrintStream(object : java.io.OutputStream() {
+                    override fun write(b: Int) {}
+                }))
+                val transferable: Transferable = systemClipboard.getContents(null)
+                TransferableConverter.fromTransferable(transferable)
+            } finally {
+                System.setErr(originalErr)
+            }
         }.getOrNull()
     }
 
