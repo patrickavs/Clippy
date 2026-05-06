@@ -72,10 +72,24 @@ class SyncServiceImpl(
     }
 
     private suspend fun handleOffer(message: SignalingMessage) {
-        val connection =
-            connectionRegistry.getConnection(message.from) ?: createConnection(
-                message.from
-            )
+        var connection = connectionRegistry.getConnection(message.from)
+
+        if (connection != null) {
+            val status = connectionRegistry.connectionStatus(message.from)
+            val isGlare = status != ir.amirroid.clipshare.connectivity.models.ConnectionStatus.CONNECTED
+
+            if (isGlare && deviceUidProvider.getDeviceId() < message.from) {
+                // Impolite peer ignores incoming offer during glare
+                return
+            }
+
+            // Polite peer (or if already connected) yields and accepts the new offer
+            connectionRegistry.removeConnection(message.from)
+            connection = createConnection(message.from)
+        } else {
+            connection = createConnection(message.from)
+        }
+
         val answer = connection.handleOffer(message)
         signalingService.sendMessage(answer)
     }

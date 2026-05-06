@@ -249,11 +249,11 @@ class AndroidWebRtcPeerToPeerConnectionImpl(
     }
 
     private fun updateConnectionStatus(isReceiver: Boolean = true) {
-        val dataChannel = if (isReceiver) receiverDataChannel else senderDataChannel
         val status = when {
             peerConnection == null -> ConnectionStatus.DISCONNECTED
             peerConnection?.iceConnectionState() == PeerConnection.IceConnectionState.CONNECTED &&
-                    dataChannel?.state() == DataChannel.State.OPEN -> ConnectionStatus.CONNECTED
+                    senderDataChannel?.state() == DataChannel.State.OPEN &&
+                    receiverDataChannel?.state() == DataChannel.State.OPEN -> ConnectionStatus.CONNECTED
 
             peerConnection?.iceConnectionState() == PeerConnection.IceConnectionState.DISCONNECTED ||
                     peerConnection?.iceConnectionState() == PeerConnection.IceConnectionState.FAILED -> ConnectionStatus.DISCONNECTED

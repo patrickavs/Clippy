@@ -88,10 +88,13 @@ class ClipboardConnectionManagerImpl(
     private suspend fun observeIncomingMessages() {
         connectionRegistry.allConnectionStatus.collect { connectionStatuses ->
             connectionStatuses.forEach { (deviceId, status) ->
-                if (status != ConnectionStatus.CONNECTED) return@collect
-                connectionRegistry.getConnection(deviceId)?.also { connection ->
-                    handleOnMessageReceived(deviceId, connection)
-                    observeToUnsyncedClipboardItems(deviceId, connection)
+                if (status == ConnectionStatus.CONNECTED) {
+                    connectionRegistry.getConnection(deviceId)?.also { connection ->
+                        scope.launch {
+                            handleOnMessageReceived(deviceId, connection)
+                            observeToUnsyncedClipboardItems(deviceId, connection)
+                        }
+                    }
                 }
             }
         }
